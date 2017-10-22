@@ -1,15 +1,15 @@
 package picker
 
 import (
+	"errors"
 	"fmt"
 	"github.com/tarm/serial"
 	"time"
-	"errors"
 )
 
 const (
-	SLIP_END = 0xc0
-	SLIP_ESC = 0xdb
+	SLIP_END     = 0xc0
+	SLIP_ESC     = 0xdb
 	SLIP_ESC_END = 0xdc
 	SLIP_ESC_ESC = 0xdd
 )
@@ -25,12 +25,12 @@ func (b Buf) AddCrc() Buf {
 }
 
 func (b Buf) RemoveCrc() Buf {
-	b = b[0:len(b) - 2]
+	b = b[0 : len(b)-2]
 	return b
 }
 
 func (b Buf) CheckCrc() bool {
-	msgCrc := b[len(b) - 2: ]
+	msgCrc := b[len(b)-2:]
 	crc := b.RemoveCrc().getCrc()
 	for i := range crc {
 		if crc[i] != msgCrc[i] {
@@ -136,7 +136,7 @@ func (b Buf) ToString() string {
 			s += fmt.Sprintf("%02X", b[i])
 			s += fmt.Sprint(" ")
 		}
-		s += fmt.Sprintf("%02X", b[len(b) - 1])
+		s += fmt.Sprintf("%02X", b[len(b)-1])
 	}
 	return s
 }
@@ -157,7 +157,7 @@ func (p Port) Open() (*serial.Port, error) {
 	return serial.OpenPort(&serial.Config{Name: p.Name, Baud: p.Baud, ReadTimeout: time.Duration(p.Timeout) * time.Millisecond})
 }
 
-func (p Port) Close() error{
+func (p Port) Close() error {
 	return p.Serial.Close()
 }
 
