@@ -5,3 +5,7 @@ script:
   - go test ./...
   - go build
 
+notifications:
+  slack:
+    on_success: never
+
