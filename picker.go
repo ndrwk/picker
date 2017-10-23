@@ -9,7 +9,7 @@ var port Port
 
 func Create(portName string, portBaud int, portTimeout int, deviceAddress byte) error {
 	port = Port{Name: portName, Baud: portBaud, Timeout: portTimeout}
-	device = Device{Address: deviceAddress, Port: &port}
+	device = Device{Address: deviceAddress, Port: &port, Sensors: &Sensors{}}
 	initDeviceError := device.init()
 	if initDeviceError != nil {
 		return initDeviceError
@@ -35,7 +35,6 @@ func M() {
 	if tempErr != nil {
 		fmt.Println(tempErr)
 	}
-
 	pressErr := device.updatePressureSensor()
 	if pressErr != nil {
 		fmt.Println(pressErr)

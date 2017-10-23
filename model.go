@@ -21,31 +21,62 @@ type PressureSensor struct {
 	Device *Device
 }
 
-type Reader interface {
+type Communicator interface {
 	ReadName() string
+	UpdateName(string)
 	ReadValue() float32
+	UpdateValue(float32)
+	ReadAddr() []byte
+	SetAddr([]byte)
 }
 
 func (s TempSensor) ReadValue() float32 {
 	return s.Value
 }
 
+func (s TempSensor) UpdateValue(value float32) {
+	s.Value = value
+}
+
 func (s TempSensor) ReadName() string {
 	return s.Name
+}
+
+func (s TempSensor) UpdateName(name string) {
+	s.Name = name
+}
+
+func (s TempSensor) ReadAddr() []byte {
+	return s.Address
+}
+
+func (s TempSensor) SetAddr(addr []byte) {
+	s.Address = s.Address[:0]
+	for _, v := range addr {
+		s.Address = append(s.Address, v)
+	}
 }
 
 func (s PressureSensor) ReadValue() float32 {
 	return s.Value
 }
 
+func (s PressureSensor) UpdateValue(value float32) {
+	s.Value = value
+}
+
 func (s PressureSensor) ReadName() string {
 	return s.Name
 }
 
-type Sensors []Reader
+func (s PressureSensor) UpdateName(name string) {
+	s.Name = name
+}
+
+type Sensors []Communicator
 
 type Device struct {
-	Sensors
+	*Sensors
 	Port    *Port
 	Address byte
 }
@@ -115,14 +146,30 @@ func (d Device) updateTempSensors() error {
 	if commError != nil {
 		return commError
 	}
-	msg.PrintHex()
 	number := int(msg[1])
 	for i := 0; i < number; i++ {
 		tempBits := binary.LittleEndian.Uint32(msg[i*12+2 : i*12+6])
 		temperature := math.Float32frombits(tempBits)
-		fmt.Println(temperature)
 		sernum := msg[i*12+6 : i*12+14]
-		sernum.PrintHex()
+		isExist := false
+		for _, v := range *device.Sensors {
+			isExist = true
+			if v != nil {
+				for i := range v.ReadAddr() {
+					if v.ReadAddr()[i] != sernum[i] {
+						isExist = false
+						break
+					}
+				}
+				if isExist {
+					v.UpdateValue(temperature)
+				}
+			}
+		}
+		if !isExist {
+			newTempSensor := TempSensor{Value: temperature, Address: sernum}
+			*d.Sensors = append(*d.Sensors, newTempSensor)
+		}
 	}
 	return nil
 }
