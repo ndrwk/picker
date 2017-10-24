@@ -3,77 +3,9 @@ package picker
 import (
 	"encoding/binary"
 	"errors"
-	"fmt"
 	"math"
 	"time"
 )
-
-type TempSensor struct {
-	Name    string
-	Value   float32
-	Address []byte
-	Device  *Device
-}
-
-type PressureSensor struct {
-	Name   string
-	Value  float32
-	Device *Device
-}
-
-type Communicator interface {
-	ReadName() string
-	UpdateName(string)
-	ReadValue() float32
-	UpdateValue(float32)
-	ReadAddr() []byte
-	SetAddr([]byte)
-}
-
-func (s TempSensor) ReadValue() float32 {
-	return s.Value
-}
-
-func (s TempSensor) UpdateValue(value float32) {
-	s.Value = value
-}
-
-func (s TempSensor) ReadName() string {
-	return s.Name
-}
-
-func (s TempSensor) UpdateName(name string) {
-	s.Name = name
-}
-
-func (s TempSensor) ReadAddr() []byte {
-	return s.Address
-}
-
-func (s TempSensor) SetAddr(addr []byte) {
-	s.Address = s.Address[:0]
-	for _, v := range addr {
-		s.Address = append(s.Address, v)
-	}
-}
-
-func (s PressureSensor) ReadValue() float32 {
-	return s.Value
-}
-
-func (s PressureSensor) UpdateValue(value float32) {
-	s.Value = value
-}
-
-func (s PressureSensor) ReadName() string {
-	return s.Name
-}
-
-func (s PressureSensor) UpdateName(name string) {
-	s.Name = name
-}
-
-type Sensors []Communicator
 
 type Device struct {
 	*Sensors
@@ -120,9 +52,9 @@ func (d Device) communicate(request Buf) (Buf, error) {
 }
 
 func (d Device) ping() error {
-	const PING_COMMAND byte = 0x00
+	const pingCommand byte = 0x00
 	rightAnswer := []byte{d.Address, 0x55, 0xAA, 0x55, 0xAA}
-	request := Buf{d.Address, PING_COMMAND}
+	request := Buf{d.Address, pingCommand}
 	msg, commError := d.communicate(request)
 	if commError != nil {
 		return commError
@@ -139,9 +71,9 @@ func (d Device) ping() error {
 }
 
 func (d Device) updateTempSensors() error {
-	const GET_TEMP_COMMAND_1 byte = 0x01
-	const GET_TEMP_COMMAND_2 byte = 0x01
-	request := Buf{d.Address, GET_TEMP_COMMAND_1, GET_TEMP_COMMAND_2}
+	const tempCommand1 byte = 0x01
+	const tempCommand2 byte = 0x01
+	request := Buf{d.Address, tempCommand1, tempCommand2}
 	msg, commError := d.communicate(request)
 	if commError != nil {
 		return commError
@@ -151,10 +83,22 @@ func (d Device) updateTempSensors() error {
 		tempBits := binary.LittleEndian.Uint32(msg[i*12+2 : i*12+6])
 		temperature := math.Float32frombits(tempBits)
 		sernum := msg[i*12+6 : i*12+14]
-		isExist := false
-		for _, v := range *device.Sensors {
-			isExist = true
-			if v != nil {
+		//isExist := false
+		isExist := updateIfNotExist(sernum, temperature)
+		if !isExist {
+			newTempSensor := TempSensor{Value: temperature, Address: sernum}
+			*d.Sensors = append(*d.Sensors, newTempSensor)
+		}
+	}
+	return nil
+}
+func updateIfNotExist(sernum Buf, temperature float32) bool {
+	isExist := false
+	for _, v := range *device.Sensors {
+		isExist = true
+		if v != nil {
+			switch v.(type) {
+			case TempSensor:
 				for i := range v.ReadAddr() {
 					if v.ReadAddr()[i] != sernum[i] {
 						isExist = false
@@ -166,26 +110,28 @@ func (d Device) updateTempSensors() error {
 				}
 			}
 		}
-		if !isExist {
-			newTempSensor := TempSensor{Value: temperature, Address: sernum}
-			*d.Sensors = append(*d.Sensors, newTempSensor)
-		}
 	}
-	return nil
+	return isExist
 }
 
-func (d Device) updatePressureSensor() error {
-	const GET_PRESSURE_COMMAND_1 byte = 0x01
-	const GET_PRESSURE_COMMAND_2 byte = 0x02
-	request := Buf{d.Address, GET_PRESSURE_COMMAND_1, GET_PRESSURE_COMMAND_2}
+func (d Device) updatePressureSensors() error {
+	const getPressureCommand1 byte = 0x01
+	const getPressureCommand2 byte = 0x02
+	request := Buf{d.Address, getPressureCommand1, getPressureCommand2}
 	msg, commError := d.communicate(request)
 	if commError != nil {
 		return commError
 	}
-	msg.PrintHex()
+	//msg.PrintHex()
 	pressure := binary.LittleEndian.Uint32(msg[1:5])
-	fmt.Println(pressure)
-	sernum := msg[5]
-	fmt.Println(sernum)
+	//fmt.Println(pressure)
+	var sernum Buf
+	sernum = append(sernum, msg[5])
+	//fmt.Println(sernum)
+	isExist := updateIfNotExist(sernum, float32(pressure))
+	if !isExist {
+		newPressureSensor := PressureSensor{Value: float32(pressure), Address: sernum}
+		*d.Sensors = append(*d.Sensors, newPressureSensor)
+	}
 	return nil
 }

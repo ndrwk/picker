@@ -26,18 +26,28 @@ func Destroy() error {
 	return closeDeviceError
 }
 
-func M() {
-	//for _, v := range device.Sensors {
-	//	fmt.Println(v.ReadName(), v.ReadValue())
-	//}
-
+func UpdateSensors() {
 	tempErr := device.updateTempSensors()
 	if tempErr != nil {
 		fmt.Println(tempErr)
 	}
-	pressErr := device.updatePressureSensor()
+	pressErr := device.updatePressureSensors()
 	if pressErr != nil {
 		fmt.Println(pressErr)
 	}
+}
 
+func PrintSensors() {
+	for _, v := range *device.Sensors {
+		switch v.(type) {
+		case TempSensor:
+			fmt.Println("Температурный")
+		case PressureSensor:
+			fmt.Println("Давление")
+		}
+		fmt.Println("Имя ", v.ReadName())
+		fmt.Println("Адрес ", v.ReadAddr())
+		fmt.Println("Показание ", v.ReadValue())
+
+	}
 }
