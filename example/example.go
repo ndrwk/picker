@@ -12,10 +12,9 @@ var portTimeout = 3000
 
 var deviceAddress byte = 0
 
-var pickerError error
-
 func main() {
 
+	var pickerError error
 	pickerError = picker.Create(portName, portBaud, portTimeout, deviceAddress)
 	if pickerError != nil {
 		fmt.Println(pickerError)
@@ -23,8 +22,25 @@ func main() {
 	}
 	defer picker.Destroy()
 
-	picker.UpdateSensors()
-	picker.PrintSensors()
+	pickerError = picker.UpdateSensors()
+	if pickerError != nil {
+		fmt.Println(pickerError)
+		os.Exit(1)
+	}
+
+	var pickerSensors = picker.GetSensorsRef()
+
+	for _, v := range *pickerSensors {
+		switch v.(type) {
+		case picker.TempSensor:
+			fmt.Println("Температурный")
+		case picker.PressureSensor:
+			fmt.Println("Давление")
+		}
+		fmt.Println("Имя ", v.ReadName())
+		fmt.Println("Адрес ", v.ReadAddr())
+		fmt.Println("Показание ", v.ReadValue())
+	}
 
 }
 

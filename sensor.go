@@ -21,7 +21,7 @@ type Communicator interface {
 	SetAddr([]byte)
 }
 
-type Sensors []Communicator
+type sensors []Communicator
 
 func (s TempSensor) ReadValue() float32 {
 	return s.Value

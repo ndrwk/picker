@@ -8,14 +8,14 @@ import (
 )
 
 type Device struct {
-	*Sensors
-	Port    *Port
-	Address byte
+	*sensors
+	port    *Port
+	address byte
 }
 
 func (d Device) init() error {
 	var portError error
-	d.Port.Serial, portError = d.Port.Open()
+	d.port.Serial, portError = d.port.Open()
 	if portError != nil {
 		return errors.New("Device: Open port: " + portError.Error())
 	}
@@ -25,7 +25,7 @@ func (d Device) init() error {
 }
 
 func (d Device) close() error {
-	closeError := d.Port.Close()
+	closeError := d.port.Close()
 	if closeError != nil {
 		errors.New("Device: Close port: " + closeError.Error())
 	}
@@ -33,11 +33,11 @@ func (d Device) close() error {
 }
 
 func (d Device) communicate(request Buf) (Buf, error) {
-	writeError := d.Port.Write(request.AddCrc().Slip())
+	writeError := d.port.Write(request.AddCrc().Slip())
 	if writeError != nil {
 		return nil, errors.New("Device: Write: " + writeError.Error())
 	}
-	response, readError := d.Port.Read()
+	response, readError := d.port.Read()
 	if readError != nil {
 		return nil, errors.New("Device: Read: " + readError.Error())
 	}
@@ -53,8 +53,8 @@ func (d Device) communicate(request Buf) (Buf, error) {
 
 func (d Device) ping() error {
 	const pingCommand byte = 0x00
-	rightAnswer := []byte{d.Address, 0x55, 0xAA, 0x55, 0xAA}
-	request := Buf{d.Address, pingCommand}
+	rightAnswer := []byte{d.address, 0x55, 0xAA, 0x55, 0xAA}
+	request := Buf{d.address, pingCommand}
 	msg, commError := d.communicate(request)
 	if commError != nil {
 		return commError
@@ -73,7 +73,7 @@ func (d Device) ping() error {
 func (d Device) updateTempSensors() error {
 	const tempCommand1 byte = 0x01
 	const tempCommand2 byte = 0x01
-	request := Buf{d.Address, tempCommand1, tempCommand2}
+	request := Buf{d.address, tempCommand1, tempCommand2}
 	msg, commError := d.communicate(request)
 	if commError != nil {
 		return commError
@@ -87,14 +87,14 @@ func (d Device) updateTempSensors() error {
 		isExist := updateIfNotExist(sernum, temperature)
 		if !isExist {
 			newTempSensor := TempSensor{Value: temperature, Address: sernum}
-			*d.Sensors = append(*d.Sensors, newTempSensor)
+			*d.sensors = append(*d.sensors, newTempSensor)
 		}
 	}
 	return nil
 }
 func updateIfNotExist(sernum Buf, temperature float32) bool {
 	isExist := false
-	for _, v := range *device.Sensors {
+	for _, v := range *device.sensors {
 		isExist = true
 		if v != nil {
 			switch v.(type) {
@@ -117,7 +117,7 @@ func updateIfNotExist(sernum Buf, temperature float32) bool {
 func (d Device) updatePressureSensors() error {
 	const getPressureCommand1 byte = 0x01
 	const getPressureCommand2 byte = 0x02
-	request := Buf{d.Address, getPressureCommand1, getPressureCommand2}
+	request := Buf{d.address, getPressureCommand1, getPressureCommand2}
 	msg, commError := d.communicate(request)
 	if commError != nil {
 		return commError
@@ -131,7 +131,7 @@ func (d Device) updatePressureSensors() error {
 	isExist := updateIfNotExist(sernum, float32(pressure))
 	if !isExist {
 		newPressureSensor := PressureSensor{Value: float32(pressure), Address: sernum}
-		*d.Sensors = append(*d.Sensors, newPressureSensor)
+		*d.sensors = append(*d.sensors, newPressureSensor)
 	}
 	return nil
 }
