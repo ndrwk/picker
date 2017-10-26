@@ -1,5 +1,7 @@
 package picker
 
+import "fmt"
+
 type TempSensor struct {
 	Name    string
 	Value   float32
@@ -48,6 +50,16 @@ func (s TempSensor) SetAddr(addr []byte) {
 	for _, v := range addr {
 		s.Address = append(s.Address, v)
 	}
+}
+
+func (s TempSensor) String() string {
+	var ser Buf = s.Address
+	return "Temp: " + fmt.Sprintf("%.1f", s.Value) + " on " + ser.ToString()
+}
+
+func (s PressureSensor) String() string {
+	var ser Buf = s.Address
+	return "Pressure: " + fmt.Sprintf("%.1f", s.Value) + " on " + ser.ToString()
 }
 
 func (s PressureSensor) ReadValue() float32 {

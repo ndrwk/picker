@@ -43,5 +43,9 @@ func main() {
 		fmt.Println()
 	}
 
+	for _, s := range *pickerSensors{
+		fmt.Println(s)
+	}
+
 }
 
