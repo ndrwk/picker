@@ -73,7 +73,6 @@ func TestTempSensor_UpdateValue(t *testing.T) {
 			if got := s.ReadValue(); got != tt.args.value {
 				t.Errorf("TempSensor.ReadValue() = %v, want %v", got, tt.args.value)
 			}
-
 		})
 	}
 }
@@ -146,7 +145,6 @@ func TestTempSensor_UpdateName(t *testing.T) {
 			if got := s.ReadName(); got != tt.args.name {
 				t.Errorf("TempSensor.ReadValue() = %v, want %v", got, tt.args.name)
 			}
-
 		})
 	}
 }
@@ -219,7 +217,6 @@ func TestTempSensor_SetAddr(t *testing.T) {
 			if got := s.ReadAddr(); !reflect.DeepEqual(got, tt.args.addr) {
 				t.Errorf("TempSensor.ReadAddr() = %v, want %v", got, tt.args.addr)
 			}
-
 		})
 	}
 }
@@ -271,7 +268,15 @@ func TestPressureSensor_UpdateValue(t *testing.T) {
 		fields fields
 		args   args
 	}{
-	// TODO: Add test cases.
+		{
+			name: "Proper values",
+			fields: fields {
+				Value: 25.88,
+			},
+			args: args{
+				value: 25.88,
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -281,6 +286,9 @@ func TestPressureSensor_UpdateValue(t *testing.T) {
 				Address: tt.fields.Address,
 			}
 			s.UpdateValue(tt.args.value)
+			if got := s.ReadValue(); got != tt.args.value {
+				t.Errorf("TempSensor.ReadValue() = %v, want %v", got, tt.args.value)
+			}
 		})
 	}
 }
@@ -332,7 +340,15 @@ func TestPressureSensor_UpdateName(t *testing.T) {
 		fields fields
 		args   args
 	}{
-	// TODO: Add test cases.
+		{
+			name: "Proper values",
+			fields: fields {
+				Name: "khvcrfxlbiyuc",
+			},
+			args: args{
+				name: "khvcrfxlbiyuc",
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -342,6 +358,9 @@ func TestPressureSensor_UpdateName(t *testing.T) {
 				Address: tt.fields.Address,
 			}
 			s.UpdateName(tt.args.name)
+			if got := s.ReadName(); got != tt.args.name {
+				t.Errorf("TempSensor.ReadValue() = %v, want %v", got, tt.args.name)
+			}
 		})
 	}
 }
@@ -393,7 +412,15 @@ func TestPressureSensor_SetAddr(t *testing.T) {
 		fields fields
 		args   args
 	}{
-	// TODO: Add test cases.
+		{
+			name: "Proper values",
+			fields: fields {
+				Address: []byte{125, 248, 7, 2, 44, 127},
+			},
+			args: args{
+				addr: []byte{125, 248, 7, 2, 44, 127},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -402,7 +429,10 @@ func TestPressureSensor_SetAddr(t *testing.T) {
 				Value:   tt.fields.Value,
 				Address: tt.fields.Address,
 			}
-			s.SetAddr(tt.args.addr)
+			s.SetAddr(tt.fields.Address)
+			if got := s.ReadAddr(); !reflect.DeepEqual(got, tt.args.addr) {
+				t.Errorf("TempSensor.ReadAddr() = %v, want %v", got, tt.args.addr)
+			}
 		})
 	}
 }

@@ -83,7 +83,6 @@ func (d Device) updateTempSensors() error {
 		tempBits := binary.LittleEndian.Uint32(msg[i*12+2 : i*12+6])
 		temperature := math.Float32frombits(tempBits)
 		sernum := msg[i*12+6 : i*12+14]
-		//isExist := false
 		isExist := updateIfNotExist(sernum, temperature)
 		if !isExist {
 			newTempSensor := TempSensor{Value: temperature, Address: sernum}
@@ -92,7 +91,7 @@ func (d Device) updateTempSensors() error {
 	}
 	return nil
 }
-func updateIfNotExist(sernum Buf, temperature float32) bool {
+func updateIfNotExist(sernum Buf, value float32) bool {
 	isExist := false
 	for _, v := range *device.sensors {
 		isExist = true
@@ -106,7 +105,7 @@ func updateIfNotExist(sernum Buf, temperature float32) bool {
 					}
 				}
 				if isExist {
-					v.UpdateValue(temperature)
+					v.UpdateValue(value)
 				}
 			}
 		}
