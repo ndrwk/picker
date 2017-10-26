@@ -40,6 +40,7 @@ func main() {
 		fmt.Println("Имя ", v.ReadName())
 		fmt.Println("Адрес ", v.ReadAddr())
 		fmt.Println("Показание ", v.ReadValue())
+		fmt.Println()
 	}
 
 }

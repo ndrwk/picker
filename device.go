@@ -5,6 +5,7 @@ import (
 	"errors"
 	"math"
 	"time"
+	"reflect"
 )
 
 type Device struct {
@@ -80,10 +81,10 @@ func (d Device) updateTempSensors() error {
 	}
 	number := int(msg[1])
 	for i := 0; i < number; i++ {
-		tempBits := binary.LittleEndian.Uint32(msg[i*12+2 : i*12+6])
+		tempBits := binary.LittleEndian.Uint32(msg[i*12+2: i*12+6])
 		temperature := math.Float32frombits(tempBits)
-		sernum := msg[i*12+6 : i*12+14]
-		isExist := updateIfNotExist(sernum, temperature)
+		sernum := msg[i*12+6: i*12+14]
+		isExist := updateIfExist(sernum, temperature)
 		if !isExist {
 			newTempSensor := TempSensor{Value: temperature, Address: sernum}
 			*d.sensors = append(*d.sensors, newTempSensor)
@@ -91,26 +92,17 @@ func (d Device) updateTempSensors() error {
 	}
 	return nil
 }
-func updateIfNotExist(sernum Buf, value float32) bool {
-	isExist := false
-	for _, v := range *device.sensors {
-		isExist = true
-		if v != nil {
-			switch v.(type) {
-			case TempSensor:
-				for i := range v.ReadAddr() {
-					if v.ReadAddr()[i] != sernum[i] {
-						isExist = false
-						break
-					}
-				}
-				if isExist {
-					v.UpdateValue(value)
-				}
+func updateIfExist(sernum []byte, value float32) bool {
+	for _, sensor := range *device.sensors {
+		if sensor != nil {
+			addr := sensor.ReadAddr()
+			if reflect.DeepEqual(addr, sernum) {
+				sensor.UpdateValue(value)
+				return true
 			}
 		}
 	}
-	return isExist
+	return false
 }
 
 func (d Device) updatePressureSensors() error {
@@ -121,13 +113,10 @@ func (d Device) updatePressureSensors() error {
 	if commError != nil {
 		return commError
 	}
-	//msg.PrintHex()
 	pressure := binary.LittleEndian.Uint32(msg[1:5])
-	//fmt.Println(pressure)
 	var sernum Buf
 	sernum = append(sernum, msg[5])
-	//fmt.Println(sernum)
-	isExist := updateIfNotExist(sernum, float32(pressure))
+	isExist := updateIfExist(sernum, float32(pressure))
 	if !isExist {
 		newPressureSensor := PressureSensor{Value: float32(pressure), Address: sernum}
 		*d.sensors = append(*d.sensors, newPressureSensor)
