@@ -26,7 +26,7 @@ func TestTempSensor_ReadValue(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := TempSensor{
+			s := DS1820{
 				Name:    tt.fields.Name,
 				Value:   tt.fields.Value,
 				Address: tt.fields.Address,
@@ -64,7 +64,7 @@ func TestTempSensor_UpdateValue(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := TempSensor{
+			s := DS1820{
 				Name:    tt.fields.Name,
 				Value:   tt.fields.Value,
 				Address: tt.fields.Address,
@@ -98,7 +98,7 @@ func TestTempSensor_ReadName(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := TempSensor{
+			s := DS1820{
 				Name:    tt.fields.Name,
 				Value:   tt.fields.Value,
 				Address: tt.fields.Address,
@@ -136,7 +136,7 @@ func TestTempSensor_UpdateName(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := TempSensor{
+			s := DS1820{
 				Name:    tt.fields.Name,
 				Value:   tt.fields.Value,
 				Address: tt.fields.Address,
@@ -170,7 +170,7 @@ func TestTempSensor_ReadAddr(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := TempSensor{
+			s := DS1820{
 				Name:    tt.fields.Name,
 				Value:   tt.fields.Value,
 				Address: tt.fields.Address,
@@ -208,7 +208,7 @@ func TestTempSensor_SetAddr(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := TempSensor{
+			s := DS1820{
 				Name:    tt.fields.Name,
 				Value:   tt.fields.Value,
 				Address: tt.fields.Address,
@@ -242,7 +242,7 @@ func TestPressureSensor_ReadValue(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := PressureSensor{
+			s := BMP085{
 				Name:    tt.fields.Name,
 				Value:   tt.fields.Value,
 				Address: tt.fields.Address,
@@ -280,7 +280,7 @@ func TestPressureSensor_UpdateValue(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := PressureSensor{
+			s := BMP085{
 				Name:    tt.fields.Name,
 				Value:   tt.fields.Value,
 				Address: tt.fields.Address,
@@ -314,7 +314,7 @@ func TestPressureSensor_ReadName(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := PressureSensor{
+			s := BMP085{
 				Name:    tt.fields.Name,
 				Value:   tt.fields.Value,
 				Address: tt.fields.Address,
@@ -352,7 +352,7 @@ func TestPressureSensor_UpdateName(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := PressureSensor{
+			s := BMP085{
 				Name:    tt.fields.Name,
 				Value:   tt.fields.Value,
 				Address: tt.fields.Address,
@@ -386,7 +386,7 @@ func TestPressureSensor_ReadAddr(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := PressureSensor{
+			s := BMP085{
 				Name:    tt.fields.Name,
 				Value:   tt.fields.Value,
 				Address: tt.fields.Address,
@@ -424,7 +424,7 @@ func TestPressureSensor_SetAddr(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := PressureSensor{
+			s := BMP085{
 				Name:    tt.fields.Name,
 				Value:   tt.fields.Value,
 				Address: tt.fields.Address,

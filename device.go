@@ -71,10 +71,10 @@ func (d Device) ping() error {
 	return nil
 }
 
-func (d Device) updateTempSensors() error {
-	const tempCommand1 byte = 0x01
-	const tempCommand2 byte = 0x01
-	request := Buf{d.address, tempCommand1, tempCommand2}
+func (d Device) updateDS1820Sensors() error {
+	const getCommand1 byte = 0x01
+	const getCommand2 byte = 0x01
+	request := Buf{d.address, getCommand1, getCommand2}
 	msg, commError := d.communicate(request)
 	if commError != nil {
 		return commError
@@ -86,7 +86,7 @@ func (d Device) updateTempSensors() error {
 		sernum := msg[i*12+6: i*12+14]
 		isExist := updateIfExist(sernum, temperature)
 		if !isExist {
-			newTempSensor := TempSensor{Value: temperature, Address: sernum}
+			newTempSensor := DS1820{Value: temperature, Address: sernum}
 			*d.sensors = append(*d.sensors, newTempSensor)
 		}
 	}
@@ -105,10 +105,10 @@ func updateIfExist(sernum []byte, value float32) bool {
 	return false
 }
 
-func (d Device) updatePressureSensors() error {
-	const getPressureCommand1 byte = 0x01
-	const getPressureCommand2 byte = 0x02
-	request := Buf{d.address, getPressureCommand1, getPressureCommand2}
+func (d Device) updateBMP085Sensors() error {
+	const getCommand1 byte = 0x01
+	const getCommand2 byte = 0x02
+	request := Buf{d.address, getCommand1, getCommand2}
 	msg, commError := d.communicate(request)
 	if commError != nil {
 		return commError
@@ -118,7 +118,7 @@ func (d Device) updatePressureSensors() error {
 	sernum = append(sernum, msg[5])
 	isExist := updateIfExist(sernum, float32(pressure))
 	if !isExist {
-		newPressureSensor := PressureSensor{Value: float32(pressure), Address: sernum}
+		newPressureSensor := BMP085{Value: float32(pressure), Address: sernum}
 		*d.sensors = append(*d.sensors, newPressureSensor)
 	}
 	return nil

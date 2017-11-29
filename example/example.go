@@ -7,7 +7,8 @@ import (
 )
 
 var portName = "/dev/ttyUSB0"
-var portBaud = 9600
+//var portBaud = 9600
+var portBaud = 115200
 var portTimeout = 3000
 
 var deviceAddress byte = 0
@@ -32,9 +33,9 @@ func main() {
 
 	for _, v := range *pickerSensors {
 		switch v.(type) {
-		case picker.TempSensor:
+		case picker.DS1820:
 			fmt.Println("Температурный")
-		case picker.PressureSensor:
+		case picker.BMP085:
 			fmt.Println("Давление")
 		}
 		fmt.Println("Имя ", v.ReadName())

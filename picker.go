@@ -23,11 +23,11 @@ func Destroy() error {
 }
 
 func UpdateSensors() error {
-	tempErr := device.updateTempSensors()
+	tempErr := device.updateDS1820Sensors()
 	if tempErr != nil {
 		return tempErr
 	}
-	pressErr := device.updatePressureSensors()
+	pressErr := device.updateBMP085Sensors()
 	if pressErr != nil {
 		return pressErr
 	}

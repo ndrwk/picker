@@ -2,13 +2,13 @@ package picker
 
 import "fmt"
 
-type TempSensor struct {
+type DS1820 struct {
 	Name    string
 	Value   float32
 	Address []byte
 }
 
-type PressureSensor struct {
+type BMP085 struct {
 	Name    string
 	Value   float32
 	Address []byte
@@ -25,64 +25,64 @@ type Communicator interface {
 
 type sensors []Communicator
 
-func (s TempSensor) ReadValue() float32 {
+func (s DS1820) ReadValue() float32 {
 	return s.Value
 }
 
-func (s TempSensor) UpdateValue(value float32) {
+func (s DS1820) UpdateValue(value float32) {
 	s.Value = value
 }
 
-func (s TempSensor) ReadName() string {
+func (s DS1820) ReadName() string {
 	return s.Name
 }
 
-func (s TempSensor) UpdateName(name string) {
+func (s DS1820) UpdateName(name string) {
 	s.Name = name
 }
 
-func (s TempSensor) ReadAddr() []byte {
+func (s DS1820) ReadAddr() []byte {
 	return s.Address
 }
 
-func (s TempSensor) SetAddr(addr []byte) {
+func (s DS1820) SetAddr(addr []byte) {
 	s.Address = s.Address[:0]
 	for _, v := range addr {
 		s.Address = append(s.Address, v)
 	}
 }
 
-func (s TempSensor) String() string {
+func (s DS1820) String() string {
 	var ser Buf = s.Address
 	return "Temp: " + fmt.Sprintf("%.1f", s.Value) + " on " + ser.ToString()
 }
 
-func (s PressureSensor) String() string {
+func (s BMP085) String() string {
 	var ser Buf = s.Address
 	return "Pressure: " + fmt.Sprintf("%.1f", s.Value) + " on " + ser.ToString()
 }
 
-func (s PressureSensor) ReadValue() float32 {
+func (s BMP085) ReadValue() float32 {
 	return s.Value
 }
 
-func (s PressureSensor) UpdateValue(value float32) {
+func (s BMP085) UpdateValue(value float32) {
 	s.Value = value
 }
 
-func (s PressureSensor) ReadName() string {
+func (s BMP085) ReadName() string {
 	return s.Name
 }
 
-func (s PressureSensor) UpdateName(name string) {
+func (s BMP085) UpdateName(name string) {
 	s.Name = name
 }
 
-func (s PressureSensor) ReadAddr() []byte {
+func (s BMP085) ReadAddr() []byte {
 	return s.Address
 }
 
-func (s PressureSensor) SetAddr(addr []byte) {
+func (s BMP085) SetAddr(addr []byte) {
 	s.Address = s.Address[:0]
 	for _, v := range addr {
 		s.Address = append(s.Address, v)
