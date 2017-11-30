@@ -1,11 +1,21 @@
 package picker
 
+import "fmt"
+
 var device Device
 var port Port
 
-func Create(portName string, portBaud int, portTimeout int, deviceAddress byte) error {
-	port = Port{Name: portName, Baud: portBaud, Timeout: portTimeout}
-	device = Device{address: deviceAddress, port: &port, sensors: &sensors{}}
+func Create(yml []byte) error {
+
+	env := Env{}
+	config := env.Configure(yml)
+	if config != nil {
+		return config
+	}
+	fmt.Printf("%+v\n", env)
+
+	port = Port{Name: env.Devices[0].Port, Baud: env.Devices[0].Baud, Timeout: env.Devices[0].TimeOut}
+	device = Device{address: env.Devices[0].Address, port: &port, sensors: &sensors{}, dtrReset: env.Devices[0].DTRReset}
 	initDeviceError := device.init()
 	if initDeviceError != nil {
 		return initDeviceError

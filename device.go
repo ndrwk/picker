@@ -4,14 +4,15 @@ import (
 	"encoding/binary"
 	"errors"
 	"math"
-	"time"
 	"reflect"
+	"time"
 )
 
 type Device struct {
 	*sensors
-	port    *Port
-	address byte
+	port     *Port
+	address  byte
+	dtrReset bool
 }
 
 func (d Device) init() error {
@@ -20,8 +21,10 @@ func (d Device) init() error {
 	if portError != nil {
 		return errors.New("Device: Open port: " + portError.Error())
 	}
-	resetTimeout := time.Millisecond * 1500
-	time.Sleep(resetTimeout)
+	if d.dtrReset {
+		resetTimeout := time.Millisecond * 1500
+		time.Sleep(resetTimeout)
+	}
 	return nil
 }
 
@@ -81,9 +84,9 @@ func (d Device) updateDS1820Sensors() error {
 	}
 	number := int(msg[1])
 	for i := 0; i < number; i++ {
-		tempBits := binary.LittleEndian.Uint32(msg[i*12+2: i*12+6])
+		tempBits := binary.LittleEndian.Uint32(msg[i*12+2 : i*12+6])
 		temperature := math.Float32frombits(tempBits)
-		sernum := msg[i*12+6: i*12+14]
+		sernum := msg[i*12+6 : i*12+14]
 		isExist := updateIfExist(sernum, temperature)
 		if !isExist {
 			newTempSensor := DS1820{Value: temperature, Address: sernum}
