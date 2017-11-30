@@ -7,14 +7,6 @@ import (
 	"log"
 )
 
-var portName = "/dev/ttyUSB0"
-
-//var portBaud = 9600
-var portBaud = 115200
-var portTimeout = 3000
-
-var deviceAddress byte = 0
-
 func main() {
 
 	//data, err := ioutil.ReadFile("devices.yml")
@@ -23,25 +15,17 @@ func main() {
 	//}
 	var data = `
 ---
-devices:
-  - address: 0
-    port: /dev/ttyUSB0
-    baud: 115200
-    timeout: 3000
-    dtrreset: true
-    sensors:
-      - type: ds18b20
-        pins: D10
-  - address: 1
-    port: /dev/ttyUSB1
-    baud: 9600
-    timeout: 3000
-    dtrreset: false
-    sensors:
-      - type: ds18b20
-        pins: D10
-      - type: bmp085
-        pins: i2c
+device:
+  address: 0
+  port: /dev/ttyUSB0
+  baud: 115200
+  timeout: 3000
+  dtrreset: true
+  sensors:
+    - type: ds18b20
+      pins: D10
+    - type: bmp085
+      pins: i2c
 `
 	yml := []byte(data)
 

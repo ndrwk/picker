@@ -18,7 +18,7 @@ func TestTempSensor_ReadValue(t *testing.T) {
 	}{
 		{
 			name: "Proper values",
-			fields: fields {
+			fields: fields{
 				Value: 25.88,
 			},
 			want: 25.88,
@@ -54,7 +54,7 @@ func TestTempSensor_UpdateValue(t *testing.T) {
 	}{
 		{
 			name: "Proper values",
-			fields: fields {
+			fields: fields{
 				Value: 25.88,
 			},
 			args: args{
@@ -90,7 +90,7 @@ func TestTempSensor_ReadName(t *testing.T) {
 	}{
 		{
 			name: "Proper values",
-			fields: fields {
+			fields: fields{
 				Name: "kjhvgcfxd",
 			},
 			want: "kjhvgcfxd",
@@ -126,7 +126,7 @@ func TestTempSensor_UpdateName(t *testing.T) {
 	}{
 		{
 			name: "Proper values",
-			fields: fields {
+			fields: fields{
 				Name: "khvcrfxlbiyuc",
 			},
 			args: args{
@@ -162,7 +162,7 @@ func TestTempSensor_ReadAddr(t *testing.T) {
 	}{
 		{
 			name: "Proper values",
-			fields: fields {
+			fields: fields{
 				Address: []byte{125, 248, 7, 2, 44, 127},
 			},
 			want: []byte{125, 248, 7, 2, 44, 127},
@@ -198,7 +198,7 @@ func TestTempSensor_SetAddr(t *testing.T) {
 	}{
 		{
 			name: "Proper values",
-			fields: fields {
+			fields: fields{
 				Address: []byte{125, 248, 7, 2, 44, 127},
 			},
 			args: args{
@@ -234,7 +234,7 @@ func TestPressureSensor_ReadValue(t *testing.T) {
 	}{
 		{
 			name: "Proper values",
-			fields: fields {
+			fields: fields{
 				Value: 760,
 			},
 			want: 760,
@@ -270,7 +270,7 @@ func TestPressureSensor_UpdateValue(t *testing.T) {
 	}{
 		{
 			name: "Proper values",
-			fields: fields {
+			fields: fields{
 				Value: 25.88,
 			},
 			args: args{
@@ -306,7 +306,7 @@ func TestPressureSensor_ReadName(t *testing.T) {
 	}{
 		{
 			name: "Proper values",
-			fields: fields {
+			fields: fields{
 				Name: "kjhvgcfxd",
 			},
 			want: "kjhvgcfxd",
@@ -342,7 +342,7 @@ func TestPressureSensor_UpdateName(t *testing.T) {
 	}{
 		{
 			name: "Proper values",
-			fields: fields {
+			fields: fields{
 				Name: "khvcrfxlbiyuc",
 			},
 			args: args{
@@ -378,7 +378,7 @@ func TestPressureSensor_ReadAddr(t *testing.T) {
 	}{
 		{
 			name: "Proper values",
-			fields: fields {
+			fields: fields{
 				Address: []byte{127},
 			},
 			want: []byte{127},
@@ -414,7 +414,7 @@ func TestPressureSensor_SetAddr(t *testing.T) {
 	}{
 		{
 			name: "Proper values",
-			fields: fields {
+			fields: fields{
 				Address: []byte{125, 248, 7, 2, 44, 127},
 			},
 			args: args{

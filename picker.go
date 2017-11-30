@@ -1,21 +1,18 @@
 package picker
 
-import "fmt"
-
 var device Device
 var port Port
 
 func Create(yml []byte) error {
 
-	env := Env{}
-	config := env.Configure(yml)
-	if config != nil {
-		return config
+	config := Env{}
+	configErr := config.Configure(yml)
+	if configErr != nil {
+		return configErr
 	}
-	fmt.Printf("%+v\n", env)
 
-	port = Port{Name: env.Devices[0].Port, Baud: env.Devices[0].Baud, Timeout: env.Devices[0].TimeOut}
-	device = Device{address: env.Devices[0].Address, port: &port, sensors: &sensors{}, dtrReset: env.Devices[0].DTRReset}
+	port = Port{Name: config.Device.Port, Baud: config.Device.Baud, Timeout: config.Device.TimeOut}
+	device = Device{address: config.Device.Address, port: &port, sensors: &sensors{}, dtrReset: config.Device.DTRReset}
 	initDeviceError := device.init()
 	if initDeviceError != nil {
 		return initDeviceError
@@ -44,7 +41,6 @@ func UpdateSensors() error {
 	return nil
 }
 
-func GetSensorsRef() *sensors{
+func GetSensorsRef() *sensors {
 	return device.sensors
 }
-

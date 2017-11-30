@@ -20,11 +20,11 @@ type DeviceConfig struct {
 }
 
 type Env struct {
-	Devices []DeviceConfig
+	Device DeviceConfig
 }
 
-func (env *Env) Configure(ymlData []byte) error {
-	err := yaml.Unmarshal(ymlData, &env)
+func (config *Env) Configure(ymlData []byte) error {
+	err := yaml.Unmarshal(ymlData, &config)
 	if err != nil {
 		return errors.New("Config: Yaml error: " + err.Error())
 	}
