@@ -1,0 +1,3 @@
+platformio init --board nanoatmega328
+copy main.cpp
+platformio run --target upload --upload-port /dev/ttyUSB0
