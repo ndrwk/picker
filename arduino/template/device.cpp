@@ -16,7 +16,6 @@
 // #define SERVO 9
 
 const unsigned char MAXNUMBERS = 10;
-const int bufLength = 8;
 const char SLIP_END = '\xC0';
 const char SLIP_ESC = '\xDB';
 const char SLIP_ESC_END = '\xDC';
