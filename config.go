@@ -25,7 +25,7 @@ type Env struct {
 	Device DeviceConfig
 }
 
-func (config *Env) Configure(ymlData []byte) error {
+func (config *Env) configure(ymlData []byte) error {
 	err := yaml.Unmarshal(ymlData, &config)
 	if err != nil {
 		return errors.New("Config: Yaml error: " + err.Error())
@@ -33,7 +33,7 @@ func (config *Env) Configure(ymlData []byte) error {
 	return nil
 }
 
-func (dc DeviceConfig) MakeConfigH() (string, error) {
+func (dc DeviceConfig) makeHeader() (string, error) {
 	res := ""
 	res += "#define ADDRESS " + fmt.Sprintf("%d\n", dc.Address)
 	res += "#define BAUDRATE " + fmt.Sprintf("%d\n", dc.Baud)

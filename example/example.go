@@ -18,9 +18,9 @@ func main() {
 device:
   address: 0
   port: /dev/ttyUSB0
-  baud: 115200
+  baud: 9600
   timeout: 3000
-  dtrreset: true
+  dtrreset: false
   sensors:
     - type: ds18b20
       pins: D10
@@ -28,28 +28,17 @@ device:
       pins: i2c
 `
 	yml := []byte(data)
-
-	config := picker.Env{}
-	configErr := config.Configure(yml)
-	if configErr != nil {
-		log.Fatal(configErr)
-	}
-	fmt.Printf("%+v\n", config)
-	dev, err := config.Device.MakeConfigH()
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(dev)
-
-
 	var pickerError error
+
+	pickerError = picker.MakeFirmWare(yml)
+
 	pickerError = picker.Create(yml)
 	if pickerError != nil {
 		log.Fatalf("error: %v", pickerError)
 	}
 	defer picker.Destroy()
 
-	pickerError = picker.UpdateSensors()
+	pickerError = picker.ReadSensors()
 	if pickerError != nil {
 		log.Fatalf("error: %v", pickerError)
 	}
@@ -57,16 +46,15 @@ device:
 	var pickerSensors = picker.GetSensorsRef()
 
 	for _, v := range *pickerSensors {
-		switch v.(type) {
-		case picker.DS1820:
-			fmt.Println("Температурный")
-		case picker.BMP085:
-			fmt.Println("Давление")
-		}
+		//switch v.(type) {
+		//case picker.DS1820:
+		//	fmt.Println("Температурный")
+		//case picker.BMP085:
+		//	fmt.Println("Давление")
+		//}
 		fmt.Println("Имя ", v.ReadName())
 		fmt.Println("Адрес ", v.ReadAddr())
 		fmt.Println("Показание ", v.ReadValue())
-		fmt.Println()
 	}
 
 	for _, s := range *pickerSensors {

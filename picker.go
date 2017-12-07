@@ -1,12 +1,32 @@
 package picker
 
+import (
+	"fmt"
+)
+
 var device Device
 var port Port
+var config Env
+
+func MakeFirmWare(yml []byte) error {
+	config = Env{}
+	configErr := config.configure(yml)
+	if configErr != nil {
+		return configErr
+	}
+	fmt.Printf("%+v\n", config)
+	dev, err := config.Device.makeHeader()
+	if err != nil {
+		return err
+	}
+	fmt.Println(dev)
+	return nil
+}
 
 func Create(yml []byte) error {
 
-	config := Env{}
-	configErr := config.Configure(yml)
+	config = Env{}
+	configErr := config.configure(yml)
 	if configErr != nil {
 		return configErr
 	}
@@ -29,14 +49,20 @@ func Destroy() error {
 	return closeDeviceError
 }
 
-func UpdateSensors() error {
-	tempErr := device.updateDS1820Sensors()
-	if tempErr != nil {
-		return tempErr
-	}
-	pressErr := device.updateBMP085Sensors()
-	if pressErr != nil {
-		return pressErr
+func ReadSensors() error {
+	for _, sensor := range config.Device.Sensors {
+		switch sensor.Type {
+		case "ds18b20":
+			tempErr := device.updateDS1820Sensors()
+			if tempErr != nil {
+				return tempErr
+			}
+		case "bmp085":
+			pressErr := device.updateBMP085Sensors()
+			if pressErr != nil {
+				return pressErr
+			}
+		}
 	}
 	return nil
 }

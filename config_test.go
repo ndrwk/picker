@@ -19,7 +19,7 @@ device:
 `
 	yml := []byte(data)
 	config := Env{}
-	configErr := config.Configure(yml)
+	configErr := config.configure(yml)
 	if configErr != nil {
 		t.Error("Expected nil, got", configErr)
 	}
