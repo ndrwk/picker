@@ -33,13 +33,12 @@ Adafruit_BMP085 bmp085;
 OneWire one_wire(ONE_WIRE_BUS);
 DallasTemperature sensors_ds1820(&one_wire);
 DeviceAddress dallas_addresses[MAXNUMBERS];
+unsigned char numbers = 0;
 #endif
 // Servo servo;
 
-unsigned char numbers = 0;
-char readbuf[50];
-char writebuf[130];
-char tmpbuf[50];
+char readbuf[64];
+char writebuf[256];
 int msglen = 0;
 
 void transfer_data(char *buf, unsigned char cnt) {
