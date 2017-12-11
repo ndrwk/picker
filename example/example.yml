@@ -1,0 +1,12 @@
+---
+device:
+  address: 0
+  port: /dev/ttyUSB0
+  baud: 115200
+  timeout: 3000
+  dtrreset: true
+  sensors:
+    - type: ds18b20
+      pins: D10
+    - type: bmp085
+      pins: i2c

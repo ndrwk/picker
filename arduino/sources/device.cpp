@@ -37,8 +37,7 @@ unsigned char numbers = 0;
 #endif
 // Servo servo;
 
-char readbuf[64];
-char writebuf[256];
+char read_write_buf[256];
 int msglen = 0;
 
 void transfer_data(char *buf, unsigned char cnt) {
@@ -131,7 +130,7 @@ int read_command(char *buf) {
 
 void serialEvent() {
   while (Serial.available()) {
-    msglen = read_command(readbuf);
+    msglen = read_command(read_write_buf);
   }
 }
 
@@ -166,25 +165,25 @@ void loop() {
 #endif
   if (msglen) {
     unsigned short msgcrc;
-    memcpy(&msgcrc, &readbuf[msglen - 2], 2);
-    unsigned short crc = get_crc(readbuf, msglen - 2);
+    memcpy(&msgcrc, &read_write_buf[msglen - 2], 2);
+    unsigned short crc = get_crc(read_write_buf, msglen - 2);
 
     if (crc == msgcrc) {
-      char adr = readbuf[0];
-      char cs = readbuf[1];
-      char mtd = readbuf[2];
+      char adr = read_write_buf[0];
+      char cs = read_write_buf[1];
+      char mtd = read_write_buf[2];
       int len;
       if (adr == LOC_ADR) {
         switch (cs) {
         case CS_PING:
-          writebuf[0] = LOC_ADR;
-          writebuf[1] = '\x55';
-          writebuf[2] = '\xAA';
-          writebuf[3] = '\x55';
-          writebuf[4] = '\xAA';
-          len = add_crc(writebuf, 5);
+          read_write_buf[0] = LOC_ADR;
+          read_write_buf[1] = '\x55';
+          read_write_buf[2] = '\xAA';
+          read_write_buf[3] = '\x55';
+          read_write_buf[4] = '\xAA';
+          len = add_crc(read_write_buf, 5);
           delay(100);
-          transfer_data(writebuf, len);
+          transfer_data(read_write_buf, len);
           digitalWrite(LED, HIGH);
           delay(10);
           digitalWrite(LED, LOW);
@@ -193,33 +192,33 @@ void loop() {
           switch (mtd) {
 #ifdef DS1820ENABLE
           case 0:
-            writebuf[0] = LOC_ADR;
-            writebuf[1] = numbers;
-            len = add_crc(writebuf, 2);
+            read_write_buf[0] = LOC_ADR;
+            read_write_buf[1] = numbers;
+            len = add_crc(read_write_buf, 2);
             delay(100);
-            transfer_data(writebuf, len);
+            transfer_data(read_write_buf, len);
             break;
           case 1:
-            writebuf[0] = LOC_ADR;
-            writebuf[1] = numbers;
+            read_write_buf[0] = LOC_ADR;
+            read_write_buf[1] = numbers;
             for (int i = 0; i < numbers; i++) {
               temp = sensors_ds1820.getTempC(dallas_addresses[i]);
-              memcpy(&writebuf[i * 12 + 2], &temp, 4);
-              memcpy(&writebuf[i * 12 + 6], &dallas_addresses[i], 8);
+              memcpy(&read_write_buf[i * 12 + 2], &temp, 4);
+              memcpy(&read_write_buf[i * 12 + 6], &dallas_addresses[i], 8);
             }
-            len = add_crc(writebuf, numbers * 12 + 2);
+            len = add_crc(read_write_buf, numbers * 12 + 2);
             delay(100);
-            transfer_data(writebuf, len);
+            transfer_data(read_write_buf, len);
             break;
 #endif
 #ifdef BMP085ENABLE
           case 2:
-            writebuf[0] = LOC_ADR;
-            memcpy(&writebuf[1], &pressure, 4);
-            writebuf[5] = 0;
-            len = add_crc(writebuf, 6);
+            read_write_buf[0] = LOC_ADR;
+            memcpy(&read_write_buf[1], &pressure, 4);
+            read_write_buf[5] = 0;
+            len = add_crc(read_write_buf, 6);
             delay(100);
-            transfer_data(writebuf, len);
+            transfer_data(read_write_buf, len);
             break;
 #endif
           }

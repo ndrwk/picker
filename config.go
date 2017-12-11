@@ -2,9 +2,9 @@ package picker
 
 import (
 	"errors"
+	"fmt"
 	"gopkg.in/yaml.v2"
 	"strconv"
-	"fmt"
 )
 
 type SensorConfig struct {
