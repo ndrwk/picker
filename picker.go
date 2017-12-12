@@ -60,6 +60,17 @@ func MakeFirmWare() error {
 	fmt.Println(out.String())
 
 
+	copy := exec.Command("cp", "../arduino/sources/device.cpp", ".picker/src")
+	err = copy.Start()
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = copy.Wait()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+
 	//cmd := exec.Command("platformio", "-h")
 	////cmd.Stdin = strings.NewReader("some input")
 	//var out bytes.Buffer
