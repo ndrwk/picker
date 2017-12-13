@@ -1,4 +1,4 @@
 platformio init --board nanoatmega328 --project-dir .picker
 cp ../arduino/sources/device.cpp .picker/src
 
-platformio run --target upload --upload-port /dev/ttyUSB0
+platformio run --target upload --project-dir .picker --upload-port /dev/ttyUSB0

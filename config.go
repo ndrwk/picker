@@ -41,7 +41,7 @@ func (dc DeviceConfig) makeHeader() (string, error) {
 		switch v.Type {
 		case "ds18b20":
 			if v.Pins == "" {
-				return "", errors.New("Sensor config error: ds18b20")
+				return "", errors.New("Sensor config error: ds18b20 - empty Pins")
 			}
 			res += "#define DS1820ENABLE\n"
 			if _, err := strconv.Atoi(v.Pins[1:]); err != nil {

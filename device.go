@@ -31,7 +31,7 @@ func (d Device) init() error {
 func (d Device) close() error {
 	closeError := d.port.Close()
 	if closeError != nil {
-		errors.New("Device: Close port: " + closeError.Error())
+		return errors.New("Device: Close port: " + closeError.Error())
 	}
 	return nil
 }

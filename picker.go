@@ -1,13 +1,12 @@
 package picker
 
 import (
-	//"bytes"
+	"bytes"
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os/exec"
-	"bytes"
+	"strings"
 )
 
 var device Device
@@ -30,62 +29,30 @@ func Init(ymlFile string) error {
 
 func MakeFirmWare() error {
 
-	check := exec.Command("platformio", "-h")
-	err := check.Start()
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = check.Wait()
-	if err != nil {
-		log.Fatal(err)
-	}
+	cmd := `platformio
+../sources/create_env.sh
+platformio run --target upload --project-dir .picker --upload-port ` + config.Device.Port
 
-	mkdir := exec.Command("mkdir", ".picker")
-	err = mkdir.Start()
+	hFile, err := config.Device.makeHeader()
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
-	err = mkdir.Wait()
-	if err != nil {
-		log.Fatal(err)
+	ioutil.WriteFile("../sources/arduino/config.h", []byte(hFile), 0666)
+
+	cmds := strings.Split(cmd, "\n")
+	for _, line := range cmds {
+		fmt.Println(line)
+		c := strings.Split(line, " ")
+		create := exec.Command(c[0], c[1:]...)
+		var out bytes.Buffer
+		create.Stdout = &out
+		err := create.Run()
+		if err != nil {
+			return errors.New(err.Error() + ":\n" + out.String())
+		}
+		fmt.Println(out.String())
+
 	}
-
-	create := exec.Command("platformio", "init", "--board", "nanoatmega328", "--project-dir", ".picker")
-	var out bytes.Buffer
-	create.Stdout = &out
-	err = create.Run()
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(out.String())
-
-
-	copy := exec.Command("cp", "../arduino/sources/device.cpp", ".picker/src")
-	err = copy.Start()
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = copy.Wait()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-
-	//cmd := exec.Command("platformio", "-h")
-	////cmd.Stdin = strings.NewReader("some input")
-	//var out bytes.Buffer
-	//cmd.Stdout = &out
-	//err := cmd.Run()
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//fmt.Println(out.String())
-	//dev, err := config.Device.makeHeader()
-	//if err != nil {
-	//	return err
-	//}
-	//fmt.Println(dev)
-
 	return nil
 }
 
