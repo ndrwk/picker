@@ -29,9 +29,9 @@ func Init(ymlFile string) error {
 
 func MakeFirmWare() error {
 
-	cmd := `platformio
-../sources/create_env.sh
-platformio run --target upload --project-dir .picker --upload-port ` + config.Device.Port
+	cmd := "platformio" + "\n"
+	cmd += "../sources/create_env.sh" + "\n"
+	cmd += "platformio run --target upload --project-dir .picker --upload-port " + config.Device.Port
 
 	hFile, err := config.Device.makeHeader()
 	if err != nil {
