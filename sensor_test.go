@@ -244,7 +244,7 @@ func TestPressureSensor_ReadValue(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			s := BMP085{
 				Name:    tt.fields.Name,
-				Value:   tt.fields.Value,
+				Pressure:   tt.fields.Value,
 				Address: tt.fields.Address,
 			}
 			if got := s.ReadValue(); got != tt.want {
@@ -282,7 +282,7 @@ func TestPressureSensor_UpdateValue(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			s := BMP085{
 				Name:    tt.fields.Name,
-				Value:   tt.fields.Value,
+				Pressure:   tt.fields.Value,
 				Address: tt.fields.Address,
 			}
 			s.UpdateValue(tt.args.value)
@@ -316,7 +316,7 @@ func TestPressureSensor_ReadName(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			s := BMP085{
 				Name:    tt.fields.Name,
-				Value:   tt.fields.Value,
+				Pressure:   tt.fields.Value,
 				Address: tt.fields.Address,
 			}
 			if got := s.ReadName(); got != tt.want {
@@ -354,7 +354,7 @@ func TestPressureSensor_UpdateName(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			s := BMP085{
 				Name:    tt.fields.Name,
-				Value:   tt.fields.Value,
+				Pressure:   tt.fields.Value,
 				Address: tt.fields.Address,
 			}
 			s.UpdateName(tt.args.name)
@@ -388,7 +388,7 @@ func TestPressureSensor_ReadAddr(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			s := BMP085{
 				Name:    tt.fields.Name,
-				Value:   tt.fields.Value,
+				Pressure:   tt.fields.Value,
 				Address: tt.fields.Address,
 			}
 			if got := s.ReadAddr(); !reflect.DeepEqual(got, tt.want) {
@@ -426,7 +426,7 @@ func TestPressureSensor_SetAddr(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			s := BMP085{
 				Name:    tt.fields.Name,
-				Value:   tt.fields.Value,
+				Pressure:   tt.fields.Value,
 				Address: tt.fields.Address,
 			}
 			s.SetAddr(tt.fields.Address)

@@ -5,10 +5,22 @@
 #define TEMPERATURE_PRECISION 12
 #include <DallasTemperature.h>
 #include <OneWire.h>
+OneWire one_wire(ONE_WIRE_BUS);
+DallasTemperature sensors_ds1820(&one_wire);
+DeviceAddress dallas_addresses[MAXNUMBERS];
+unsigned char numbers = 0;
 #endif
 
 #ifdef BMP085ENABLE
 #include <Adafruit_BMP085.h>
+Adafruit_BMP085 bmp085;
+#endif
+
+#ifdef DHT22ENABLE
+#include <DHT.h>
+#define DHTPIN DHT22_PIN
+#define DHTTYPE DHT22
+DHT dht(DHTPIN, DHTTYPE);
 #endif
 
 #define LED 13
@@ -25,16 +37,6 @@ const char CS_INFO = '\x01';
 const char LOC_ADR = ADDRESS;
 const long BAUD = BAUDRATE;
 
-#ifdef BMP085ENABLE
-Adafruit_BMP085 bmp085;
-#endif
-
-#ifdef DS1820ENABLE
-OneWire one_wire(ONE_WIRE_BUS);
-DallasTemperature sensors_ds1820(&one_wire);
-DeviceAddress dallas_addresses[MAXNUMBERS];
-unsigned char numbers = 0;
-#endif
 // Servo servo;
 
 char read_write_buf[256];
@@ -142,11 +144,19 @@ void setup() {
 #ifdef DS1820ENABLE
   sensors_ds1820.begin();
 #endif
+#ifdef DHT22ENABLE
+dht.begin();
+#endif
+
   pinMode(LED, OUTPUT);
   // servo.attach(SERVO);
 }
 
 void loop() {
+#ifdef DHT22ENABLE
+float dht_humidity = dht.readHumidity();
+float dht_temperature = dht.readTemperature();
+#endif
 #ifdef BMP085ENABLE
   int32_t pressure = (int32_t)(bmp085.readPressure() / 133.3224);
 #endif
@@ -219,6 +229,16 @@ void loop() {
             len = add_crc(read_write_buf, 6);
             delay(100);
             transfer_data(read_write_buf, len);
+            break;
+#endif
+#ifdef DHT22ENABLE
+          case 3:
+            read_write_buf[0] = LOC_ADR;
+            memcpy(&read_write_buf[1], &dht_humidity, 4);
+            read_write_buf[5] = 0;
+            len = addCRC(read_write_buf, 6);
+            delay(100);
+            transferData(read_write_buf, len);
             break;
 #endif
           }

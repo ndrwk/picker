@@ -121,7 +121,7 @@ func (d Device) updateBMP085Sensors() error {
 	sernum = append(sernum, msg[5])
 	isExist := updateIfExist(sernum, float32(pressure))
 	if !isExist {
-		newPressureSensor := BMP085{Value: float32(pressure), Address: sernum, Name: "BMP085"}
+		newPressureSensor := BMP085{Pressure: float32(pressure), Address: sernum, Name: "BMP085"}
 		*d.sensors = append(*d.sensors, newPressureSensor)
 	}
 	return nil
