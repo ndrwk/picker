@@ -13,8 +13,12 @@ func (s BMP085) String() string {
 	return "Pressure: " + fmt.Sprintf("%.1f", s.Pressure) + " on " + ser.ToString()
 }
 
-func (s BMP085) ReadValue() float32 {
-	return s.Pressure
+//func (s BMP085) ReadValue() float32 {
+//	return s.Pressure
+//}
+
+func (s BMP085) ReadValues() []float32 {
+	return []float32{s.Pressure}
 }
 
 func (s BMP085) UpdateValue(value float32) {

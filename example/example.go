@@ -52,7 +52,7 @@ func main() {
 		for _, v := range *pickerSensors {
 			fmt.Println("Имя ", v.ReadName())
 			fmt.Println("Адрес ", v.ReadAddr())
-			fmt.Println("Показание ", v.ReadValue())
+			fmt.Println("Показание ", v.ReadValues())
 		}
 
 		for _, s := range *pickerSensors {

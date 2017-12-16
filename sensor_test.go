@@ -31,7 +31,7 @@ func TestTempSensor_ReadValue(t *testing.T) {
 				Value:   tt.fields.Value,
 				Address: tt.fields.Address,
 			}
-			if got := s.ReadValue(); got != tt.want {
+			if got := s.ReadValues()[0]; got != tt.want {
 				t.Errorf("TempSensor.ReadValue() = %v, want %v", got, tt.want)
 			}
 		})
@@ -70,7 +70,7 @@ func TestTempSensor_UpdateValue(t *testing.T) {
 				Address: tt.fields.Address,
 			}
 			s.UpdateValue(tt.args.value)
-			if got := s.ReadValue(); got != tt.args.value {
+			if got := s.ReadValues()[0]; got != tt.args.value {
 				t.Errorf("TempSensor.ReadValue() = %v, want %v", got, tt.args.value)
 			}
 		})
@@ -247,7 +247,7 @@ func TestPressureSensor_ReadValue(t *testing.T) {
 				Pressure:   tt.fields.Value,
 				Address: tt.fields.Address,
 			}
-			if got := s.ReadValue(); got != tt.want {
+			if got := s.ReadValues()[0]; got != tt.want {
 				t.Errorf("PressureSensor.ReadValue() = %v, want %v", got, tt.want)
 			}
 		})
@@ -286,7 +286,7 @@ func TestPressureSensor_UpdateValue(t *testing.T) {
 				Address: tt.fields.Address,
 			}
 			s.UpdateValue(tt.args.value)
-			if got := s.ReadValue(); got != tt.args.value {
+			if got := s.ReadValues()[0]; got != tt.args.value {
 				t.Errorf("TempSensor.ReadValue() = %v, want %v", got, tt.args.value)
 			}
 		})
