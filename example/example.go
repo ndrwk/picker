@@ -56,7 +56,7 @@ func main() {
 		}
 
 		fmt.Println()
-		for i := 0; i < 5; i++ {
+		for i := 0; i < 10; i++ {
 			pickerError = picker.ReadSensors()
 			if pickerError != nil {
 				log.Fatalf("error: %v", pickerError)

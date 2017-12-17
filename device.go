@@ -90,11 +90,12 @@ func (d Device) updateDS1820Sensors() error {
 		isExist := updateIfExist(sernum, []float32{temperature})
 		if !isExist {
 			newTempSensor := DS1820{Value: temperature, Address: sernum, Name: "DS1820"}
-			*d.sensors = append(*d.sensors, newTempSensor)
+			*d.sensors = append(*d.sensors, &newTempSensor)
 		}
 	}
 	return nil
 }
+
 func updateIfExist(sernum []byte, values []float32) bool {
 	for _, sensor := range *device.sensors {
 		if sensor != nil {
@@ -123,7 +124,7 @@ func (d Device) updateBMP085Sensors() error {
 	isExist := updateIfExist(sernum, []float32{float32(pressure), float32(temperature)})
 	if !isExist {
 		newPressureSensor := BMP085{Pressure: float32(pressure), Temperature: float32(temperature), Address: sernum, Name: "BMP085"}
-		*d.sensors = append(*d.sensors, newPressureSensor)
+		*d.sensors = append(*d.sensors, &newPressureSensor)
 	}
 	return nil
 }
