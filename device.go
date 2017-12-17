@@ -87,7 +87,7 @@ func (d Device) updateDS1820Sensors() error {
 		tempBits := binary.LittleEndian.Uint32(msg[i*12+2 : i*12+6])
 		temperature := math.Float32frombits(tempBits)
 		sernum := msg[i*12+6 : i*12+14]
-		isExist := updateIfExist(sernum, temperature)
+		isExist := updateIfExist(sernum, []float32{temperature})
 		if !isExist {
 			newTempSensor := DS1820{Value: temperature, Address: sernum, Name: "DS1820"}
 			*d.sensors = append(*d.sensors, newTempSensor)
@@ -95,12 +95,12 @@ func (d Device) updateDS1820Sensors() error {
 	}
 	return nil
 }
-func updateIfExist(sernum []byte, value float32) bool {
+func updateIfExist(sernum []byte, values []float32) bool {
 	for _, sensor := range *device.sensors {
 		if sensor != nil {
 			addr := sensor.ReadAddr()
 			if reflect.DeepEqual(addr, sernum) {
-				sensor.UpdateValue(value)
+				sensor.UpdateValues(values)
 				return true
 			}
 		}
@@ -117,11 +117,12 @@ func (d Device) updateBMP085Sensors() error {
 		return commError
 	}
 	pressure := binary.LittleEndian.Uint32(msg[1:5])
+	temperature := 100.0
 	var sernum Buf
 	sernum = append(sernum, msg[5])
-	isExist := updateIfExist(sernum, float32(pressure))
+	isExist := updateIfExist(sernum, []float32{float32(pressure), float32(temperature)})
 	if !isExist {
-		newPressureSensor := BMP085{Pressure: float32(pressure), Address: sernum, Name: "BMP085"}
+		newPressureSensor := BMP085{Pressure: float32(pressure), Temperature: float32(temperature), Address: sernum, Name: "BMP085"}
 		*d.sensors = append(*d.sensors, newPressureSensor)
 	}
 	return nil

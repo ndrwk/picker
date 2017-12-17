@@ -8,16 +8,12 @@ type DS1820 struct {
 	Address []byte
 }
 
-//func (s DS1820) ReadValue() float32 {
-//	return s.Value
-//}
-
 func (s DS1820) ReadValues() []float32 {
 	return []float32{s.Value}
 }
 
-func (s DS1820) UpdateValue(value float32) {
-	s.Value = value
+func (s DS1820) UpdateValues(values []float32) {
+	s.Value = values[0]
 }
 
 func (s DS1820) ReadName() string {
@@ -41,5 +37,5 @@ func (s DS1820) SetAddr(addr []byte) {
 
 func (s DS1820) String() string {
 	var ser Buf = s.Address
-	return "Temp: " + fmt.Sprintf("%.1f", s.Value) + " on " + s.Name + " s/n " + ser.ToString()
+	return "DS1820: " + "Temperature = " + fmt.Sprintf("%.2f", s.Value) + ", s/n " + ser.ToString()
 }

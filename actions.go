@@ -4,8 +4,7 @@ type Actions interface {
 	ReadName() string
 	UpdateName(string)
 	ReadValues() []float32
-	UpdateValue(float32)
-	//UpdateValues([]float32)
+	UpdateValues([]float32)
 	ReadAddr() []byte
 	SetAddr([]byte)
 }

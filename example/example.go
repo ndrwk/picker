@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/ndrwk/picker"
 	"flag"
 	"fmt"
+	"github.com/ndrwk/picker"
 	"log"
 	"os"
 	"path/filepath"
@@ -55,8 +55,15 @@ func main() {
 			fmt.Println("Показание ", v.ReadValues())
 		}
 
-		for _, s := range *pickerSensors {
-			fmt.Println(s)
+		fmt.Println()
+		for i := 0; i < 5; i++ {
+			pickerError = picker.ReadSensors()
+			if pickerError != nil {
+				log.Fatalf("error: %v", pickerError)
+			}
+			for _, s := range *pickerSensors {
+				fmt.Println(s)
+			}
 		}
 	}
 }

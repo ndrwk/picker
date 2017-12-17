@@ -5,6 +5,7 @@
 #define TEMPERATURE_PRECISION 12
 #include <DallasTemperature.h>
 #include <OneWire.h>
+const unsigned char MAXNUMBERS = 10;
 OneWire one_wire(ONE_WIRE_BUS);
 DallasTemperature sensors_ds1820(&one_wire);
 DeviceAddress dallas_addresses[MAXNUMBERS];
@@ -27,7 +28,6 @@ DHT dht(DHTPIN, DHTTYPE);
 
 // #define SERVO 9
 
-const unsigned char MAXNUMBERS = 10;
 const char SLIP_END = '\xC0';
 const char SLIP_ESC = '\xDB';
 const char SLIP_ESC_END = '\xDC';
@@ -217,7 +217,7 @@ float dht_temperature = dht.readTemperature();
               memcpy(&read_write_buf[i * 12 + 6], &dallas_addresses[i], 8);
             }
             len = add_crc(read_write_buf, numbers * 12 + 2);
-            delay(100);
+            delay(10);
             transfer_data(read_write_buf, len);
             break;
 #endif
@@ -227,7 +227,7 @@ float dht_temperature = dht.readTemperature();
             memcpy(&read_write_buf[1], &pressure, 4);
             read_write_buf[5] = 0;
             len = add_crc(read_write_buf, 6);
-            delay(100);
+            delay(10);
             transfer_data(read_write_buf, len);
             break;
 #endif
@@ -237,7 +237,7 @@ float dht_temperature = dht.readTemperature();
             memcpy(&read_write_buf[1], &dht_humidity, 4);
             read_write_buf[5] = 0;
             len = addCRC(read_write_buf, 6);
-            delay(100);
+            delay(10);
             transferData(read_write_buf, len);
             break;
 #endif

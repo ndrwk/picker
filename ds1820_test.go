@@ -69,7 +69,7 @@ func TestDS1820_UpdateValue(t *testing.T) {
 				Value:   tt.fields.Value,
 				Address: tt.fields.Address,
 			}
-			s.UpdateValue(tt.args.value)
+			s.UpdateValues([]float32{tt.args.value})
 			if got := s.ReadValues()[0]; got != tt.args.value {
 				t.Errorf("TempSensor.ReadValue() = %v, want %v", got, tt.args.value)
 			}
