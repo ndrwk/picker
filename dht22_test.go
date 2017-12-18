@@ -5,12 +5,12 @@ import (
 	"testing"
 )
 
-func TestBMP085_ReadValue(t *testing.T) {
+func TestDHT22_ReadValue(t *testing.T) {
 	type fields struct {
-		Name    string
-		Pressure   float32
+		Name        string
+		Moisture    float32
 		Temperature float32
-		Address []byte
+		Address     []byte
 	}
 	tests := []struct {
 		name   string
@@ -20,17 +20,19 @@ func TestBMP085_ReadValue(t *testing.T) {
 		{
 			name: "Proper values",
 			fields: fields{
-				Pressure: 760,
-				Temperature: 33.1,
+				Moisture:    59.3,
+				Temperature: 25.5,
 			},
-			want: []float32{760, 33.1},
+			want: []float32{59.3, 25.5},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := BMP085{
-				Pressure: tt.fields.Pressure,
-				Temperature:  tt.fields.Temperature,
+			s := DHT22{
+				Name:        tt.fields.Name,
+				Moisture:    tt.fields.Moisture,
+				Temperature: tt.fields.Temperature,
+				Address:     tt.fields.Address,
 			}
 			if got := s.ReadValues(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("PressureSensor.ReadValue() = %v, want %v", got, tt.want)
@@ -39,15 +41,15 @@ func TestBMP085_ReadValue(t *testing.T) {
 	}
 }
 
-func TestBMP085_UpdateValues(t *testing.T) {
+func TestDHT22_UpdateValues(t *testing.T) {
 	type fields struct {
 		Name        string
-		Pressure    float32
+		Moisture    float32
 		Temperature float32
 		Address     []byte
 	}
 	type args struct {
-		pressure    float32
+		mousture    float32
 		temperature float32
 	}
 	tests := []struct {
@@ -58,36 +60,32 @@ func TestBMP085_UpdateValues(t *testing.T) {
 		{
 			name: "Proper values",
 			fields: fields{
-				Pressure:    760.0,
+				Moisture:    43.4,
 				Temperature: 28.55,
 			},
 			args: args{
-				pressure:    760.0,
+				mousture:    43.4,
 				temperature: 28.55,
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := BMP085{
-				Name:        tt.fields.Name,
-				Pressure:    tt.fields.Pressure,
+			s := DHT22{
+				Moisture:    tt.fields.Moisture,
 				Temperature: tt.fields.Temperature,
-				Address:     tt.fields.Address,
 			}
-			s.UpdateValues([]float32{tt.args.pressure, tt.args.temperature})
-			if got := s.ReadValues(); !reflect.DeepEqual(got, []float32{tt.args.pressure, tt.args.temperature}) {
-				t.Errorf("TempSensor.ReadValue() = %v, want %v, %v", got, tt.args.pressure, tt.args.temperature)
+			s.UpdateValues([]float32{tt.fields.Moisture, tt.fields.Temperature})
+			if got := s.ReadValues(); !reflect.DeepEqual(got, []float32{tt.args.mousture, tt.args.temperature}) {
+				t.Errorf("TempSensor.ReadValue() = %v, want %v, %v", got, tt.args.mousture, tt.args.temperature)
 			}
 		})
 	}
 }
 
-func TestBMP085_ReadName(t *testing.T) {
+func TestDHT22_ReadName(t *testing.T) {
 	type fields struct {
-		Name    string
-		Value   float32
-		Address []byte
+		Name string
 	}
 	tests := []struct {
 		name   string
@@ -104,10 +102,8 @@ func TestBMP085_ReadName(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := BMP085{
-				Name:     tt.fields.Name,
-				Pressure: tt.fields.Value,
-				Address:  tt.fields.Address,
+			s := DHT22{
+				Name: tt.fields.Name,
 			}
 			if got := s.ReadName(); got != tt.want {
 				t.Errorf("PressureSensor.ReadName() = %v, want %v", got, tt.want)
@@ -116,11 +112,9 @@ func TestBMP085_ReadName(t *testing.T) {
 	}
 }
 
-func TestBMP085_UpdateName(t *testing.T) {
+func TestDHT22_UpdateName(t *testing.T) {
 	type fields struct {
-		Name    string
-		Value   float32
-		Address []byte
+		Name string
 	}
 	type args struct {
 		name string
@@ -142,10 +136,8 @@ func TestBMP085_UpdateName(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := BMP085{
-				Name:     tt.fields.Name,
-				Pressure: tt.fields.Value,
-				Address:  tt.fields.Address,
+			s := DHT22{
+				Name: tt.fields.Name,
 			}
 			s.UpdateName(tt.args.name)
 			if got := s.ReadName(); got != tt.args.name {
@@ -155,10 +147,8 @@ func TestBMP085_UpdateName(t *testing.T) {
 	}
 }
 
-func TestBMP085_ReadAddr(t *testing.T) {
+func TestDHT22_ReadAddr(t *testing.T) {
 	type fields struct {
-		Name    string
-		Value   float32
 		Address []byte
 	}
 	tests := []struct {
@@ -176,10 +166,8 @@ func TestBMP085_ReadAddr(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := BMP085{
-				Name:     tt.fields.Name,
-				Pressure: tt.fields.Value,
-				Address:  tt.fields.Address,
+			s := DHT22{
+				Address: tt.fields.Address,
 			}
 			if got := s.ReadAddr(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("PressureSensor.ReadAddr() = %v, want %v", got, tt.want)
@@ -188,10 +176,8 @@ func TestBMP085_ReadAddr(t *testing.T) {
 	}
 }
 
-func TestBMP085_SetAddr(t *testing.T) {
+func TestDHT22_SetAddr(t *testing.T) {
 	type fields struct {
-		Name    string
-		Value   float32
 		Address []byte
 	}
 	type args struct {
@@ -214,10 +200,8 @@ func TestBMP085_SetAddr(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := BMP085{
-				Name:     tt.fields.Name,
-				Pressure: tt.fields.Value,
-				Address:  tt.fields.Address,
+			s := DHT22{
+				Address: tt.fields.Address,
 			}
 			s.SetAddr(tt.fields.Address)
 			if got := s.ReadAddr(); !reflect.DeepEqual(got, tt.args.addr) {
