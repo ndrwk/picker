@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"os/exec"
 	"strings"
 )
@@ -23,25 +24,41 @@ func Init(ymlFile string) error {
 	if configErr != nil {
 		return configErr
 	}
-	fmt.Printf("%+v\n", config)
 	return nil
 }
 
 func MakeFirmWare() error {
-
-	cmd := "platformio" + "\n"
-	cmd += "../sources/create_env.sh" + "\n"
-	cmd += "platformio run --target upload --project-dir .picker --upload-port " + config.Device.Port
-
+	os.Mkdir(".picker", 0777)
+	cmd0 := "platformio init --board nanoatmega328 --project-dir .picker" + "\n"
+	cmd0 += "platformio lib --global install 525@1.0.0" + "\n" // Adafruit BMP085 Library @ 1.0.0
+	cmd0 += "platformio lib --global install 54@3.7.7" + "\n"  // OneWire @ 2.3.2
+	cmd0 += "platformio lib --global install 1336@None" // DHTlib@None
+	err := runCmd(cmd0)
+	if err != nil {
+		return err
+	}
 	hFile, err := config.Device.makeHeader()
 	if err != nil {
 		return err
 	}
-	ioutil.WriteFile("../sources/arduino/config.h", []byte(hFile), 0666)
+	ioutil.WriteFile(".picker/src/config.h", []byte(hFile), 0777)
+	source, err := ioutil.ReadFile("../arduino/device.cpp")
+	if err != nil {
+		return err
+	}
+	ioutil.WriteFile(".picker/src/device.cpp", source, 0777)
+	cmd1 := "platformio run --target upload --project-dir .picker --upload-port " + config.Device.Port
+	err = runCmd(cmd1)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
-	cmds := strings.Split(cmd, "\n")
+func runCmd(cmdStr string) error {
+	cmds := strings.Split(cmdStr, "\n")
 	for _, line := range cmds {
-		fmt.Println(line)
+		fmt.Println(">>>>>", line)
 		c := strings.Split(line, " ")
 		createCmd := exec.Command(c[0], c[1:]...)
 		var out bytes.Buffer
@@ -52,7 +69,6 @@ func MakeFirmWare() error {
 			return errors.New(err.Error() + ":\n" + out.String())
 		}
 		fmt.Println(out.String())
-
 	}
 	return nil
 }

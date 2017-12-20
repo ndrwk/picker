@@ -5,25 +5,14 @@ import (
 	"fmt"
 	"github.com/ndrwk/picker"
 	"log"
-	"os"
-	"path/filepath"
 )
 
 func main() {
-
-	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(dir)
 
 	ymlFile := flag.String("yml", "example.yml", "yaml config file name")
 	makeFlag := flag.Bool("make_upload", false, "make source & upload flag")
 	runFlag := flag.Bool("run", false, "run picker flag")
 	flag.Parse()
-	fmt.Println("yml:", *ymlFile)
-	fmt.Println("make:", *makeFlag)
-	fmt.Println("run:", *runFlag)
 
 	pickerError := picker.Init(*ymlFile)
 	if pickerError != nil {
