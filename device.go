@@ -119,9 +119,10 @@ func (d Device) updateDHT22() error {
 	}
 	tempBits := binary.LittleEndian.Uint32(msg[1:5])
 	humidity := math.Float32frombits(tempBits)
-	temperature := 55.0
+	tempBits = binary.LittleEndian.Uint32(msg[5:9])
+	temperature := math.Float32frombits(tempBits)
 	var sernum Buf
-	sernum = append(sernum, msg[5])
+	sernum = append(sernum, msg[9])
 	isExist := updateIfExist(sernum, []float32{float32(humidity), float32(temperature)}, &DHT22{})
 	if !isExist {
 		newPressureSensor := DHT22{Moisture: float32(humidity), Temperature: float32(temperature), Address: sernum, Name: "DHT22"}

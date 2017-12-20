@@ -226,10 +226,12 @@ void loop() {
           case 3:
             DHT.read22(DHT22_PIN);
             float dht_humidity = DHT.humidity;
+            float dht_temperature = DHT.temperature;
             read_write_buf[0] = LOC_ADR;
             memcpy(&read_write_buf[1], &dht_humidity, 4);
-            read_write_buf[5] = 0;
-            len = add_crc(read_write_buf, 6);
+            memcpy(&read_write_buf[5], &dht_temperature, 4);
+            read_write_buf[9] = 0;
+            len = add_crc(read_write_buf, 10);
             delay(10);
             transfer_data(read_write_buf, len);
             break;
