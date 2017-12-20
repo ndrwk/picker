@@ -48,6 +48,15 @@ func (dc DeviceConfig) makeHeader() (string, error) {
 				return "", errors.New("Sensor config error: ds18b20: " + err.Error())
 			}
 			res += "#define DS1820_PIN " + v.Pins[1:] + "\n"
+		case "dht22":
+			if v.Pins == "" {
+				return "", errors.New("Sensor config error: dht22 - empty Pins")
+			}
+			res += "#define DHT22ENABLE\n"
+			if _, err := strconv.Atoi(v.Pins[1:]); err != nil {
+				return "", errors.New("Sensor config error: dht22: " + err.Error())
+			}
+			res += "#define DHT22_PIN " + v.Pins[1:] + "\n"
 		case "bmp085":
 			res += "#define BMP085ENABLE\n"
 		}

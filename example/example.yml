@@ -10,3 +10,5 @@ device:
       pins: D10
     - type: bmp085
       pins: i2c
+    - type: dht22
+      pins: D8

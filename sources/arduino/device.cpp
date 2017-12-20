@@ -18,10 +18,8 @@ Adafruit_BMP085 bmp085;
 #endif
 
 #ifdef DHT22ENABLE
-#include <DHT.h>
-#define DHTPIN DHT22_PIN
-#define DHTTYPE DHT22
-DHT dht(DHTPIN, DHTTYPE);
+#include <dht.h>
+dht DHT;
 #endif
 
 #define LED 13
@@ -144,19 +142,12 @@ void setup() {
 #ifdef DS1820ENABLE
   sensors_ds1820.begin();
 #endif
-#ifdef DHT22ENABLE
-dht.begin();
-#endif
 
   pinMode(LED, OUTPUT);
   // servo.attach(SERVO);
 }
 
 void loop() {
-#ifdef DHT22ENABLE
-float dht_humidity = dht.readHumidity();
-float dht_temperature = dht.readTemperature();
-#endif
 #ifdef BMP085ENABLE
   int32_t pressure = (int32_t)(bmp085.readPressure() / 133.3224);
 #endif
@@ -195,7 +186,7 @@ float dht_temperature = dht.readTemperature();
           delay(100);
           transfer_data(read_write_buf, len);
           digitalWrite(LED, HIGH);
-          delay(10);
+          delay(100);
           digitalWrite(LED, LOW);
           break;
         case CS_INFO:
@@ -233,12 +224,14 @@ float dht_temperature = dht.readTemperature();
 #endif
 #ifdef DHT22ENABLE
           case 3:
+            DHT.read22(DHT22_PIN);
+            float dht_humidity = DHT.humidity;
             read_write_buf[0] = LOC_ADR;
             memcpy(&read_write_buf[1], &dht_humidity, 4);
             read_write_buf[5] = 0;
-            len = addCRC(read_write_buf, 6);
+            len = add_crc(read_write_buf, 6);
             delay(10);
-            transferData(read_write_buf, len);
+            transfer_data(read_write_buf, len);
             break;
 #endif
           }

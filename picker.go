@@ -43,10 +43,11 @@ func MakeFirmWare() error {
 	for _, line := range cmds {
 		fmt.Println(line)
 		c := strings.Split(line, " ")
-		create := exec.Command(c[0], c[1:]...)
+		createCmd := exec.Command(c[0], c[1:]...)
 		var out bytes.Buffer
-		create.Stdout = &out
-		err := create.Run()
+		createCmd.Stdout = &out
+		createCmd.Stderr = &out
+		err := createCmd.Run()
 		if err != nil {
 			return errors.New(err.Error() + ":\n" + out.String())
 		}
@@ -87,6 +88,11 @@ func ReadSensors() error {
 			pressErr := device.updateBMP085Sensors()
 			if pressErr != nil {
 				return pressErr
+			}
+		case "dht22":
+			err := device.updateDHT22()
+			if err != nil {
+				return err
 			}
 		}
 	}
