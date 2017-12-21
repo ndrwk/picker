@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"path/filepath"
 )
 
 var device Device
@@ -41,12 +42,15 @@ func MakeFirmWare() error {
 	if err != nil {
 		return err
 	}
-	ioutil.WriteFile(".picker/src/config.h", []byte(hFile), 0777)
-	source, err := ioutil.ReadFile("../arduino/device.cpp")
+	hPath := filepath.Join(".picker", "src", "config.h")
+	ioutil.WriteFile(hPath, []byte(hFile), 0777)
+	templatePath := filepath.Join("..", "arduino", "device.cpp")
+	source, err := ioutil.ReadFile(templatePath)
 	if err != nil {
 		return err
 	}
-	ioutil.WriteFile(".picker/src/device.cpp", source, 0777)
+	cppPath := filepath.Join(".picker", "src", "device.cpp")
+	ioutil.WriteFile(cppPath, source, 0777)
 	cmd1 := "platformio run --target upload --project-dir .picker --upload-port " + config.Device.Port
 	err = runCmd(cmd1)
 	if err != nil {
@@ -58,7 +62,7 @@ func MakeFirmWare() error {
 func runCmd(cmdStr string) error {
 	cmds := strings.Split(cmdStr, "\n")
 	for _, line := range cmds {
-		fmt.Println(">>>>>", line)
+		fmt.Println(">>>>", line)
 		c := strings.Split(line, " ")
 		createCmd := exec.Command(c[0], c[1:]...)
 		var out bytes.Buffer
