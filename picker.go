@@ -7,8 +7,8 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
-	"strings"
 	"path/filepath"
+	"strings"
 )
 
 var device Device
@@ -33,7 +33,7 @@ func MakeFirmWare() error {
 	cmd0 := "platformio init --board nanoatmega328 --project-dir .picker" + "\n"
 	cmd0 += "platformio lib --global install 525@1.0.0" + "\n" // Adafruit BMP085 Library @ 1.0.0
 	cmd0 += "platformio lib --global install 54@3.7.7" + "\n"  // OneWire @ 2.3.2
-	cmd0 += "platformio lib --global install 1336@None" // DHTlib@None
+	cmd0 += "platformio lib --global install 1336@None"        // DHTlib@None
 	err := runCmd(cmd0)
 	if err != nil {
 		return err
@@ -98,22 +98,30 @@ func Destroy() error {
 
 func ReadSensors() error {
 	for _, sensor := range config.Device.Sensors {
-		switch sensor.Type {
-		case "ds18b20":
-			tempErr := device.updateDS1820Sensors()
-			if tempErr != nil {
-				return tempErr
-			}
-		case "bmp085":
-			pressErr := device.updateBMP085Sensors()
-			if pressErr != nil {
-				return pressErr
-			}
-		case "dht22":
-			err := device.updateDHT22()
-			if err != nil {
-				return err
-			}
+		sensorErr := ReadSensor(sensor)
+		if sensorErr != nil{
+			return sensorErr
+		}
+	}
+	return nil
+}
+
+func ReadSensor(s SensorConfig) error {
+	switch s.Type {
+	case "ds18b20":
+		tempErr := device.updateDS1820Sensors()
+		if tempErr != nil {
+			return tempErr
+		}
+	case "bmp085":
+		pressErr := device.updateBMP085Sensors()
+		if pressErr != nil {
+			return pressErr
+		}
+	case "dht22":
+		err := device.updateDHT22()
+		if err != nil {
+			return err
 		}
 	}
 	return nil
