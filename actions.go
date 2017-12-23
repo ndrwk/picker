@@ -1,12 +1,13 @@
 package picker
 
 type Actions interface {
-	ReadName() string
-	UpdateName(string)
-	ReadValues() []float32
-	UpdateValues([]float32)
-	ReadAddr() []byte
-	SetAddr([]byte)
+	readName() string
+	updateName(string)
+	readValues() []float32
+	updateValues([]float32)
+	readAddr() []byte
+	setAddr([]byte)
+	toString() string
 }
 
 type sensors []Actions

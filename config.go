@@ -18,6 +18,7 @@ type DeviceConfig struct {
 	Baud     int
 	TimeOut  int
 	DTRReset bool
+	QueryPeriod int
 	Sensors  []SensorConfig
 }
 

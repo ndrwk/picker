@@ -31,7 +31,7 @@ func TestDS1820_ReadValue(t *testing.T) {
 				Value:   tt.fields.Value,
 				Address: tt.fields.Address,
 			}
-			if got := s.ReadValues()[0]; got != tt.want {
+			if got := s.readValues()[0]; got != tt.want {
 				t.Errorf("TempSensor.ReadValue() = %v, want %v", got, tt.want)
 			}
 		})
@@ -69,8 +69,8 @@ func TestDS1820_UpdateValue(t *testing.T) {
 				Value:   tt.fields.Value,
 				Address: tt.fields.Address,
 			}
-			s.UpdateValues([]float32{tt.args.value})
-			if got := s.ReadValues()[0]; got != tt.args.value {
+			s.updateValues([]float32{tt.args.value})
+			if got := s.readValues()[0]; got != tt.args.value {
 				t.Errorf("TempSensor.ReadValue() = %v, want %v", got, tt.args.value)
 			}
 		})
@@ -103,7 +103,7 @@ func TestDS1820_ReadName(t *testing.T) {
 				Value:   tt.fields.Value,
 				Address: tt.fields.Address,
 			}
-			if got := s.ReadName(); got != tt.want {
+			if got := s.readName(); got != tt.want {
 				t.Errorf("TempSensor.ReadName() = %v, want %v", got, tt.want)
 			}
 		})
@@ -141,8 +141,8 @@ func TestDS1820_UpdateName(t *testing.T) {
 				Value:   tt.fields.Value,
 				Address: tt.fields.Address,
 			}
-			s.UpdateName(tt.args.name)
-			if got := s.ReadName(); got != tt.args.name {
+			s.updateName(tt.args.name)
+			if got := s.readName(); got != tt.args.name {
 				t.Errorf("TempSensor.ReadValue() = %v, want %v", got, tt.args.name)
 			}
 		})
@@ -175,7 +175,7 @@ func TestDS1820_ReadAddr(t *testing.T) {
 				Value:   tt.fields.Value,
 				Address: tt.fields.Address,
 			}
-			if got := s.ReadAddr(); !reflect.DeepEqual(got, tt.want) {
+			if got := s.readAddr(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("TempSensor.ReadAddr() = %v, want %v", got, tt.want)
 			}
 		})
@@ -213,8 +213,8 @@ func TestDS1820_SetAddr(t *testing.T) {
 				Value:   tt.fields.Value,
 				Address: tt.fields.Address,
 			}
-			s.SetAddr(tt.fields.Address)
-			if got := s.ReadAddr(); !reflect.DeepEqual(got, tt.args.addr) {
+			s.setAddr(tt.fields.Address)
+			if got := s.readAddr(); !reflect.DeepEqual(got, tt.args.addr) {
 				t.Errorf("TempSensor.ReadAddr() = %v, want %v", got, tt.args.addr)
 			}
 		})

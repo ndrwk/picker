@@ -33,19 +33,19 @@ func main() {
 
 		var pickerSensors = picker.GetSensorsRef()
 
-		pickerError = picker.ReadSensors()
-		if pickerError != nil {
-			log.Fatalf("error: %v", pickerError)
-		}
-
-		for _, v := range *pickerSensors {
-			fmt.Println("Имя ", v.ReadName())
-			fmt.Println("Адрес ", v.ReadAddr())
-			fmt.Println("Показание ", v.ReadValues())
-		}
+		//pickerError = picker.ReadSensors()
+		//if pickerError != nil {
+		//	log.Fatalf("error: %v", pickerError)
+		//}
+		//
+		//for _, v := range *pickerSensors {
+		//	fmt.Println("Имя ", v.ReadName())
+		//	fmt.Println("Адрес ", v.ReadAddr())
+		//	fmt.Println("Показание ", v.ReadValues())
+		//}
 
 		fmt.Println()
-		for i := 0; i < 10; i++ {
+		for i := 0; i < 5; i++ {
 			pickerError = picker.ReadSensors()
 			if pickerError != nil {
 				log.Fatalf("error: %v", pickerError)

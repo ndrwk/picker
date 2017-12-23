@@ -99,9 +99,9 @@ func (d Device) updateDS1820Sensors() error {
 func updateIfExist(sernum []byte, values []float32, s Actions) bool {
 	for _, sensor := range *device.sensors {
 		if sensor != nil {
-			addr := sensor.ReadAddr()
+			addr := sensor.readAddr()
 			if reflect.DeepEqual(addr, sernum) && reflect.TypeOf(s) == reflect.TypeOf(sensor) {
-				sensor.UpdateValues(values)
+				sensor.updateValues(values)
 				return true
 			}
 		}
