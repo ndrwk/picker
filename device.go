@@ -17,7 +17,7 @@ type Device struct {
 
 func (d Device) init() error {
 	var portError error
-	d.port.Serial, portError = d.port.open()
+	d.port.Serial, portError = d.port.openPort()
 	if portError != nil {
 		return errors.New("Device: Open port: " + portError.Error())
 	}
@@ -29,7 +29,7 @@ func (d Device) init() error {
 }
 
 func (d Device) close() error {
-	closeError := d.port.close()
+	closeError := d.port.closePort()
 	if closeError != nil {
 		return errors.New("Device: Close port: " + closeError.Error())
 	}

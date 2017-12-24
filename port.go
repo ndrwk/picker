@@ -13,11 +13,11 @@ type Port struct {
 	Serial  *serial.Port
 }
 
-func (p Port) open() (*serial.Port, error) {
+func (p Port) openPort() (*serial.Port, error) {
 	return serial.OpenPort(&serial.Config{Name: p.Name, Baud: p.Baud, ReadTimeout: time.Duration(p.Timeout) * time.Millisecond})
 }
 
-func (p Port) close() error {
+func (p Port) closePort() error {
 	return p.Serial.Close()
 }
 
