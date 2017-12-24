@@ -140,6 +140,5 @@ func (b Buf) toString() string {
 }
 
 func (b Buf) printHex() {
-	//printHexBuf(b)
 	fmt.Println(b.toString())
 }

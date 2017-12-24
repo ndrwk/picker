@@ -39,8 +39,6 @@ func (p Port) read() (Buf, error) {
 	var err error
 	for err == nil {
 		_, err = p.Serial.Read(tmpBuf)
-		//fmt.Printf("%02X", tmpBuf[0])
-		//fmt.Print(" ")
 		if tmpBuf[0] == 0xC0 {
 			response = append(response, tmpBuf[0])
 			if packetStarted {
@@ -55,6 +53,5 @@ func (p Port) read() (Buf, error) {
 			}
 		}
 	}
-	//fmt.Println()
 	return response, err
 }
