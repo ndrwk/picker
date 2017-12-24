@@ -12,6 +12,11 @@ import (
 	"time"
 )
 
+type Result struct {
+	Message string
+	Error   error
+}
+
 var device Device
 var port Port
 var config Env
@@ -97,21 +102,21 @@ func Destroy() error {
 	return closeDeviceError
 }
 
-func Run(valChan chan string) error{
+func Run(valChan chan Result) {
 	ticker := time.NewTicker(time.Second * time.Duration(config.Device.QueryPeriod))
 	go func() {
 		for range ticker.C {
 			ReadSensors(valChan)
 		}
 	}()
-	return nil
 }
 
-func ReadSensors(valChan chan string) error {
+func ReadSensors(valChan chan Result) error {
 	var res string
 	for _, sensor := range config.Device.Sensors {
 		sensorErr := updateSensor(sensor)
 		if sensorErr != nil {
+			valChan <- Result{Error: sensorErr}
 			return sensorErr
 		}
 	}
@@ -119,7 +124,7 @@ func ReadSensors(valChan chan string) error {
 	for _, s := range *device.sensors {
 		res += s.toString() + "\n"
 	}
-	valChan <- res
+	valChan <- Result{Message: res, Error: nil}
 	return nil
 }
 

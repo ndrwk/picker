@@ -31,16 +31,14 @@ func main() {
 			log.Fatalf("error: %v", pickerError)
 		}
 
-		values := make(chan string)
-		go picker.ReadSensors(values)
-		fmt.Println(<-values)
-
+		values := make(chan picker.Result, 1)
 		picker.Run(values)
 
-		for i := 0; i < 500; i++ {
-			//go picker.ReadSensors(values)
-			sensors := <-values
-			fmt.Println(sensors)
+		for res := range values {
+			if res.Error != nil {
+				log.Fatalf("error: %v", res.Error)
+			}
+			fmt.Println(res.Message)
 		}
 	}
 }
