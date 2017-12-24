@@ -9,13 +9,14 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 var device Device
 var port Port
 var config Env
 
-func Init(ymlFile string) error {
+func LoadConfig(ymlFile string) error {
 	data, err := ioutil.ReadFile(ymlFile)
 	if err != nil {
 		return errors.New("Picker: Open file: " + err.Error())
@@ -96,17 +97,33 @@ func Destroy() error {
 	return closeDeviceError
 }
 
-func ReadSensors() error {
-	for _, sensor := range config.Device.Sensors {
-		sensorErr := ReadSensor(sensor)
-		if sensorErr != nil{
-			return sensorErr
+func Run(valChan chan string) error{
+	ticker := time.NewTicker(time.Second * time.Duration(config.Device.QueryPeriod))
+	go func() {
+		for range ticker.C {
+			ReadSensors(valChan)
 		}
-	}
+	}()
 	return nil
 }
 
-func ReadSensor(s SensorConfig) error {
+func ReadSensors(valChan chan string) error {
+	var res string
+	for _, sensor := range config.Device.Sensors {
+		sensorErr := updateSensor(sensor)
+		if sensorErr != nil {
+			return sensorErr
+		}
+	}
+	res += time.Now().String() + "\n"
+	for _, s := range *device.sensors {
+		res += s.toString() + "\n"
+	}
+	valChan <- res
+	return nil
+}
+
+func updateSensor(s SensorConfig) error {
 	switch s.Type {
 	case "ds18b20":
 		tempErr := device.updateDS1820Sensors()
@@ -127,6 +144,6 @@ func ReadSensor(s SensorConfig) error {
 	return nil
 }
 
-func GetSensorsRef() *sensors {
-	return device.sensors
-}
+//func GetSensorsRef() *sensors {
+//	return device.sensors
+//}

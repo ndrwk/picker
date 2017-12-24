@@ -14,7 +14,7 @@ func main() {
 	runFlag := flag.Bool("run", false, "run picker flag")
 	flag.Parse()
 
-	pickerError := picker.Init(*ymlFile)
+	pickerError := picker.LoadConfig(*ymlFile)
 	if pickerError != nil {
 		log.Fatalf("error: %v", pickerError)
 	}
@@ -31,28 +31,16 @@ func main() {
 			log.Fatalf("error: %v", pickerError)
 		}
 
-		var pickerSensors = picker.GetSensorsRef()
+		values := make(chan string)
+		go picker.ReadSensors(values)
+		fmt.Println(<-values)
 
-		//pickerError = picker.ReadSensors()
-		//if pickerError != nil {
-		//	log.Fatalf("error: %v", pickerError)
-		//}
-		//
-		//for _, v := range *pickerSensors {
-		//	fmt.Println("Имя ", v.ReadName())
-		//	fmt.Println("Адрес ", v.ReadAddr())
-		//	fmt.Println("Показание ", v.ReadValues())
-		//}
+		picker.Run(values)
 
-		fmt.Println()
-		for i := 0; i < 5; i++ {
-			pickerError = picker.ReadSensors()
-			if pickerError != nil {
-				log.Fatalf("error: %v", pickerError)
-			}
-			for _, s := range *pickerSensors {
-				fmt.Println(s)
-			}
+		for i := 0; i < 500; i++ {
+			//go picker.ReadSensors(values)
+			sensors := <-values
+			fmt.Println(sensors)
 		}
 	}
 }

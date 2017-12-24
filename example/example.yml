@@ -5,7 +5,7 @@ device:
   baud: 115200
   timeout: 3000
   dtrreset: true
-  queryperiod: 10
+  queryperiod: 30
   sensors:
     - type: ds18b20
       pins: D10
