@@ -17,7 +17,7 @@ type Device struct {
 
 func (d Device) init() error {
 	var portError error
-	d.port.Serial, portError = d.port.Open()
+	d.port.Serial, portError = d.port.open()
 	if portError != nil {
 		return errors.New("Device: Open port: " + portError.Error())
 	}
@@ -29,7 +29,7 @@ func (d Device) init() error {
 }
 
 func (d Device) close() error {
-	closeError := d.port.Close()
+	closeError := d.port.close()
 	if closeError != nil {
 		return errors.New("Device: Close port: " + closeError.Error())
 	}
@@ -37,22 +37,22 @@ func (d Device) close() error {
 }
 
 func (d Device) communicate(request Buf) (Buf, error) {
-	writeError := d.port.Write(request.AddCrc().Slip())
+	writeError := d.port.write(request.addCrc().slip())
 	if writeError != nil {
 		return nil, errors.New("Device: Write: " + writeError.Error())
 	}
-	response, readError := d.port.Read()
+	response, readError := d.port.read()
 	if readError != nil {
 		return nil, errors.New("Device: Read: " + readError.Error())
 	}
-	unslipped, unSlipError := response.UnSlip()
+	unslipped, unSlipError := response.unSlip()
 	if unSlipError != nil {
 		return nil, errors.New("Device: " + unSlipError.Error())
 	}
-	if !unslipped.CheckCrc() {
+	if !unslipped.checkCrc() {
 		return nil, errors.New(" Device: CRC error")
 	}
-	return unslipped.RemoveCrc(), nil
+	return unslipped.removeCrc(), nil
 }
 
 func (d Device) ping() error {

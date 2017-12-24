@@ -37,5 +37,5 @@ func (s *DS1820) setAddr(addr []byte) {
 
 func (s DS1820) toString() string {
 	var ser Buf = s.Address
-	return "DS1820: " + "Temperature = " + fmt.Sprintf("%.2f", s.Value) + ", s/n " + ser.ToString()
+	return "DS1820: " + "Temperature = " + fmt.Sprintf("%.2f", s.Value) + ", s/n " + ser.toString()
 }

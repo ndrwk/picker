@@ -15,7 +15,7 @@ func TestBuf_getCrc(t *testing.T) {
 func TestBuf_AddCrc(t *testing.T) {
 	buf := Buf{0x00, 0x55, 0xAA, 0x55, 0xAA}
 	res := Buf{0x00, 0x55, 0xAA, 0x55, 0xAA, 0xC3, 0xAA}
-	buf = buf.AddCrc()
+	buf = buf.addCrc()
 	for i := range res {
 		if res[i] != buf[i] {
 			t.Error("don't match")
@@ -26,7 +26,7 @@ func TestBuf_AddCrc(t *testing.T) {
 func TestBuf_RemoveCrc(t *testing.T) {
 	buf := Buf{0x00, 0x55, 0xAA, 0x55, 0xAA, 0xC3, 0xAA}
 	res := Buf{0x00, 0x55, 0xAA, 0x55, 0xAA}
-	buf = buf.RemoveCrc()
+	buf = buf.removeCrc()
 	for i := range res {
 		if res[i] != buf[i] {
 			t.Error("don't match")
@@ -36,11 +36,11 @@ func TestBuf_RemoveCrc(t *testing.T) {
 
 func TestBuf_CheckCrc(t *testing.T) {
 	buf := Buf{0x00, 0x55, 0xAA, 0x55, 0xAA, 0xC3, 0xAA}
-	if !buf.CheckCrc() {
+	if !buf.checkCrc() {
 		t.Error("expected true, got false")
 	}
 	bufWrong := Buf{0x00, 0x55, 0xAA, 0x55, 0xA1, 0xC3, 0xAA}
-	if bufWrong.CheckCrc() {
+	if bufWrong.checkCrc() {
 		t.Error("expected false, got true")
 	}
 }
@@ -48,7 +48,7 @@ func TestBuf_CheckCrc(t *testing.T) {
 func TestBuf_Slip(t *testing.T) {
 	buf := Buf{0x00, 0x55, 0xAA, 0xC0, 0x55, 0xAA, 0xC3, 0xAA}
 	res := Buf{0xC0, 0x00, 0x55, 0xAA, 0xDB, 0xDC, 0x55, 0xAA, 0xC3, 0xAA, 0xC0}
-	encoded := buf.Slip()
+	encoded := buf.slip()
 	for i := range res {
 		if res[i] != encoded[i] {
 			t.Error("don't match")
@@ -59,7 +59,7 @@ func TestBuf_Slip(t *testing.T) {
 func TestBUF_UnSlip(t *testing.T) {
 	buf := Buf{0xC0, 0x00, 0x01, 0x00, 0x80, 0xC7, 0x41, 0x10, 0x60, 0x3B, 0x4F, 0x00, 0x08, 0x00, 0xDB, 0xDC, 0x2A, 0x39, 0xC0}
 	res := Buf{0x00, 0x01, 0x00, 0x80, 0xC7, 0x41, 0x10, 0x60, 0x3B, 0x4F, 0x00, 0x08, 0x00, 0xC0, 0x2A, 0x39}
-	decoded, err := buf.UnSlip()
+	decoded, err := buf.unSlip()
 	for i := range res {
 		if res[i] != decoded[i] {
 			t.Error("don't match")
@@ -69,7 +69,7 @@ func TestBUF_UnSlip(t *testing.T) {
 		t.Error("err must be nil")
 	}
 	wrongBuf := Buf{0x00, 0x01, 0x00, 0x80, 0xC7, 0x41, 0x10, 0x60, 0x3B, 0x4F, 0x00, 0x08, 0x00, 0xDB, 0xDC, 0x2A, 0x39, 0xC0}
-	decodedWrong, wrongErr := wrongBuf.UnSlip()
+	decodedWrong, wrongErr := wrongBuf.unSlip()
 	if len(decodedWrong) != 0 {
 		t.Error("must be 0")
 	}
@@ -81,7 +81,7 @@ func TestBUF_UnSlip(t *testing.T) {
 func TestBuf_ToString(t *testing.T) {
 	buf := Buf{0xC0, 0x00, 0x01, 0x00, 0x80, 0xC7, 0x41, 0x10, 0x60, 0x3B, 0x4F, 0x00, 0x08, 0x00, 0xDB, 0xDC, 0x2A, 0x39, 0xC0}
 	res := "C0 00 01 00 80 C7 41 10 60 3B 4F 00 08 00 DB DC 2A 39 C0"
-	if buf.ToString() != res {
+	if buf.toString() != res {
 		t.Error("must be equal")
 	}
 }
