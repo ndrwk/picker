@@ -16,8 +16,7 @@ type Device struct {
 }
 
 func (d Device) init() error {
-	var portError error
-	d.port.Serial, portError = d.port.openPort()
+	portError := d.port.openPort()
 	if portError != nil {
 		return errors.New("Device: Open port: " + portError.Error())
 	}

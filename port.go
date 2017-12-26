@@ -1,9 +1,9 @@
 package picker
 
 import (
-	"time"
 	"errors"
 	"github.com/tarm/serial"
+	"time"
 )
 
 type Port struct {
@@ -13,15 +13,20 @@ type Port struct {
 	Serial  *serial.Port
 }
 
-func (p Port) openPort() (*serial.Port, error) {
-	return serial.OpenPort(&serial.Config{Name: p.Name, Baud: p.Baud, ReadTimeout: time.Duration(p.Timeout) * time.Millisecond})
+func (p *Port) openPort() error {
+	var err error
+	p.Serial, err = serial.OpenPort(&serial.Config{Name: p.Name, Baud: p.Baud, ReadTimeout: time.Duration(p.Timeout) * time.Millisecond})
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-func (p Port) closePort() error {
+func (p *Port) closePort() error {
 	return p.Serial.Close()
 }
 
-func (p Port) write(b Buf) error {
+func (p *Port) write(b Buf) error {
 	n, err := p.Serial.Write(b)
 	if err != nil {
 		return err
@@ -32,7 +37,7 @@ func (p Port) write(b Buf) error {
 	return nil
 }
 
-func (p Port) read() (Buf, error) {
+func (p *Port) read() (Buf, error) {
 	response := Buf{}
 	tmpBuf := make([]byte, 1)
 	packetStarted := false
