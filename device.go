@@ -15,7 +15,7 @@ type Device struct {
 	dtrReset bool
 }
 
-func (d Device) init() error {
+func (d *Device) init() error {
 	portError := d.port.openPort()
 	if portError != nil {
 		return errors.New("Device: Open port: " + portError.Error())
@@ -27,7 +27,7 @@ func (d Device) init() error {
 	return nil
 }
 
-func (d Device) close() error {
+func (d *Device) close() error {
 	closeError := d.port.closePort()
 	if closeError != nil {
 		return errors.New("Device: Close port: " + closeError.Error())
@@ -35,7 +35,7 @@ func (d Device) close() error {
 	return nil
 }
 
-func (d Device) communicate(request Buf) (Buf, error) {
+func (d *Device) communicate(request Buf) (Buf, error) {
 	writeError := d.port.write(request.addCrc().slip())
 	if writeError != nil {
 		return nil, errors.New("Device: Write: " + writeError.Error())
@@ -54,7 +54,7 @@ func (d Device) communicate(request Buf) (Buf, error) {
 	return unslipped.removeCrc(), nil
 }
 
-func (d Device) ping() error {
+func (d *Device) ping() error {
 	const pingCommand byte = 0x00
 	rightAnswer := []byte{d.address, 0x55, 0xAA, 0x55, 0xAA}
 	request := Buf{d.address, pingCommand}
@@ -73,7 +73,7 @@ func (d Device) ping() error {
 	return nil
 }
 
-func (d Device) updateDS1820Sensors() error {
+func (d *Device) updateDS1820Sensors() error {
 	const getCommand1 byte = 0x01
 	const getCommand2 byte = 0x01
 	request := Buf{d.address, getCommand1, getCommand2}
@@ -108,7 +108,7 @@ func updateIfExist(sernum []byte, values []float32, s Actions) bool {
 	return false
 }
 
-func (d Device) updateDHT22() error {
+func (d *Device) updateDHT22() error {
 	const getCommand1 byte = 0x01
 	const getCommand2 byte = 0x03
 	request := Buf{d.address, getCommand1, getCommand2}
@@ -130,7 +130,7 @@ func (d Device) updateDHT22() error {
 	return nil
 }
 
-func (d Device) updateBMP085Sensors() error {
+func (d *Device) updateBMP085Sensors() error {
 	const getCommand1 byte = 0x01
 	const getCommand2 byte = 0x02
 	request := Buf{d.address, getCommand1, getCommand2}
