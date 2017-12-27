@@ -2,9 +2,9 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"github.com/ndrwk/picker"
 	"log"
+	"fmt"
 )
 
 func main() {
@@ -40,7 +40,7 @@ func main() {
 			}
 			fmt.Println(res.TimeStamp.String())
 			fmt.Println("Device:", res.DeviceAddress)
-			fmt.Println(string(res.SensorJson))
+			fmt.Printf("%+v\n", res.Sensor)
 		}
 	}
 }

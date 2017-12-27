@@ -8,8 +8,16 @@ import (
 	"time"
 )
 
+type Sensor struct {
+	Name    string
+	Address []byte
+	Values  map[string]float32
+}
+
+type sensors []Sensor
+
 type Device struct {
-	*sensors
+	sensors
 	port     *Port
 	address  byte
 	dtrReset bool
@@ -86,23 +94,24 @@ func (d *Device) updateDS1820Sensors() error {
 		tempBits := binary.LittleEndian.Uint32(msg[i*12+2 : i*12+6])
 		temperature := math.Float32frombits(tempBits)
 		sernum := msg[i*12+6 : i*12+14]
-		isExist := updateIfExist(sernum, []float32{temperature}, &DS1820{})
+		values := make(map[string]float32)
+		values["temperature"] = temperature
+		isExist := updateIfExist(sernum, values, "DS1820")
 		if !isExist {
-			newTempSensor := DS1820{Value: temperature, Address: sernum, Name: "DS1820"}
-			*d.sensors = append(*d.sensors, &newTempSensor)
+			newSensor := Sensor{Values: values, Address: sernum, Name: "DS1820"}
+			d.sensors = append(d.sensors, newSensor)
 		}
 	}
 	return nil
 }
 
-func updateIfExist(sernum []byte, values []float32, s Actions) bool {
-	for _, sensor := range *device.sensors {
-		if sensor != nil {
-			addr := sensor.readAddr()
-			if reflect.DeepEqual(addr, sernum) && reflect.TypeOf(s) == reflect.TypeOf(sensor) {
-				sensor.updateValues(values)
-				return true
+func updateIfExist(sernum []byte, values map[string]float32, name string) bool {
+	for _, sensor := range device.sensors {
+		if reflect.DeepEqual(sensor.Address, sernum) && sensor.Name == name {
+			for k := range values{
+				sensor.Values[k] = values[k]
 			}
+			return true
 		}
 	}
 	return false
@@ -122,10 +131,13 @@ func (d *Device) updateDHT22() error {
 	temperature := math.Float32frombits(tempBits)
 	var sernum Buf
 	sernum = append(sernum, msg[9])
-	isExist := updateIfExist(sernum, []float32{float32(humidity), float32(temperature)}, &DHT22{})
+	values := make(map[string]float32)
+	values["temperature"] = temperature
+	values["humidity"] = humidity
+	isExist := updateIfExist(sernum, values, "DHT22")
 	if !isExist {
-		newPressureSensor := DHT22{Moisture: float32(humidity), Temperature: float32(temperature), Address: sernum, Name: "DHT22"}
-		*d.sensors = append(*d.sensors, &newPressureSensor)
+		newSensor := Sensor{Values: values, Address: sernum, Name: "DHT22"}
+		d.sensors = append(d.sensors, newSensor)
 	}
 	return nil
 }
@@ -142,10 +154,13 @@ func (d *Device) updateBMP085Sensors() error {
 	temperature := 100.0
 	var sernum Buf
 	sernum = append(sernum, msg[5])
-	isExist := updateIfExist(sernum, []float32{float32(pressure), float32(temperature)}, &BMP085{})
+	values := make(map[string]float32)
+	values["pressure"] = float32(pressure)
+	values["temperature"] = float32(temperature)
+	isExist := updateIfExist(sernum, values, "BMP085")
 	if !isExist {
-		newPressureSensor := BMP085{Pressure: float32(pressure), Temperature: float32(temperature), Address: sernum, Name: "BMP085"}
-		*d.sensors = append(*d.sensors, &newPressureSensor)
+		newSensor := Sensor{Values: values, Address: sernum, Name: "BMP085"}
+		d.sensors = append(d.sensors, newSensor)
 	}
 	return nil
 }

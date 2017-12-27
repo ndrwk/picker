@@ -15,14 +15,8 @@ import (
 type Message struct {
 	TimeStamp     time.Time
 	DeviceAddress byte
-	SensorJson    []byte
+	Sensor
 	Error         error
-}
-
-type Sensor struct {
-	Name    string
-	Address []byte
-	Values  map[string]float32
 }
 
 var device Device
@@ -93,7 +87,7 @@ func runCmd(cmdStr string) error {
 
 func Create() error {
 	port = Port{Name: config.Device.Port, Baud: config.Device.Baud, Timeout: config.Device.TimeOut}
-	device = Device{address: config.Device.Address, port: &port, sensors: &sensors{}, dtrReset: config.Device.DTRReset}
+	device = Device{address: config.Device.Address, port: &port, sensors: sensors{}, dtrReset: config.Device.DTRReset}
 	initDeviceError := device.init()
 	if initDeviceError != nil {
 		return initDeviceError
@@ -127,13 +121,8 @@ func ReadSensors(valChan chan Message) error {
 			return sensorErr
 		}
 	}
-	for _, s := range *device.sensors {
-		res, err := s.toJSON()
-		if err != nil {
-			valChan <- Message{SensorJson: []byte("Error"), Error: nil, TimeStamp: time.Now(), DeviceAddress: device.address}
-		} else {
-			valChan <- Message{SensorJson: res, Error: nil, TimeStamp: time.Now(), DeviceAddress: device.address}
-		}
+	for _, s := range device.sensors {
+			valChan <- Message{Sensor: s, Error: nil, TimeStamp: time.Now(), DeviceAddress: device.address}
 	}
 	return nil
 }
