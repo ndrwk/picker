@@ -19,6 +19,12 @@ type Message struct {
 	Error         error
 }
 
+type Sensor struct {
+	Name    string
+	Address []byte
+	Values  map[string]float32
+}
+
 var device Device
 var port Port
 var config Env
