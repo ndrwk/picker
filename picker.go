@@ -12,9 +12,11 @@ import (
 	"time"
 )
 
-type Result struct {
-	Message string
-	Error   error
+type Message struct {
+	TimeStamp     time.Time
+	DeviceAddress byte
+	SensorJson    []byte
+	Error         error
 }
 
 var device Device
@@ -102,7 +104,7 @@ func Destroy() error {
 	return closeDeviceError
 }
 
-func Run(valChan chan Result) {
+func Run(valChan chan Message) {
 	ticker := time.NewTicker(time.Second * time.Duration(config.Device.QueryPeriod))
 	go func() {
 		for range ticker.C {
@@ -111,20 +113,22 @@ func Run(valChan chan Result) {
 	}()
 }
 
-func ReadSensors(valChan chan Result) error {
-	var res string
+func ReadSensors(valChan chan Message) error {
 	for _, sensor := range config.Device.Sensors {
 		sensorErr := updateSensor(sensor)
 		if sensorErr != nil {
-			valChan <- Result{Error: sensorErr}
+			valChan <- Message{Error: sensorErr}
 			return sensorErr
 		}
 	}
-	res += time.Now().String() + "\n"
 	for _, s := range *device.sensors {
-		res += s.toString() + "\n"
+		res, err := s.toJSON()
+		if err != nil {
+			valChan <- Message{SensorJson: []byte("Error"), Error: nil, TimeStamp: time.Now(), DeviceAddress: device.address}
+		} else {
+			valChan <- Message{SensorJson: res, Error: nil, TimeStamp: time.Now(), DeviceAddress: device.address}
+		}
 	}
-	valChan <- Result{Message: res, Error: nil}
 	return nil
 }
 
@@ -148,7 +152,3 @@ func updateSensor(s SensorConfig) error {
 	}
 	return nil
 }
-
-//func GetSensorsRef() *sensors {
-//	return device.sensors
-//}

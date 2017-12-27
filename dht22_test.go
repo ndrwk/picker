@@ -83,69 +83,6 @@ func TestDHT22_UpdateValues(t *testing.T) {
 	}
 }
 
-func TestDHT22_ReadName(t *testing.T) {
-	type fields struct {
-		Name string
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		want   string
-	}{
-		{
-			name: "Proper values",
-			fields: fields{
-				Name: "kjhvgcfxd",
-			},
-			want: "kjhvgcfxd",
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			s := DHT22{
-				Name: tt.fields.Name,
-			}
-			if got := s.readName(); got != tt.want {
-				t.Errorf("PressureSensor.ReadName() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestDHT22_UpdateName(t *testing.T) {
-	type fields struct {
-		Name string
-	}
-	type args struct {
-		name string
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		args   args
-	}{
-		{
-			name: "Proper values",
-			fields: fields{
-				Name: "khvcrfxlbiyuc",
-			},
-			args: args{
-				name: "khvcrfxlbiyuc",
-			},
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			s := DHT22{
-				Name: tt.fields.Name,
-			}
-			s.updateName(tt.args.name)
-			if got := s.readName(); got != tt.args.name {
-				t.Errorf("TempSensor.ReadValue() = %v, want %v", got, tt.args.name)
-			}
-		})
-	}
-}
 
 func TestDHT22_ReadAddr(t *testing.T) {
 	type fields struct {

@@ -1,6 +1,9 @@
 package picker
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+)
 
 type DS1820 struct {
 	Name    string
@@ -14,14 +17,6 @@ func (s DS1820) readValues() []float32 {
 
 func (s *DS1820) updateValues(values []float32) {
 	s.Value = values[0]
-}
-
-func (s DS1820) readName() string {
-	return s.Name
-}
-
-func (s *DS1820) updateName(name string) {
-	s.Name = name
 }
 
 func (s DS1820) readAddr() []byte {
@@ -38,4 +33,8 @@ func (s *DS1820) setAddr(addr []byte) {
 func (s DS1820) toString() string {
 	var ser Buf = s.Address
 	return "DS1820: " + "Temperature = " + fmt.Sprintf("%.2f", s.Value) + ", s/n " + ser.toString()
+}
+
+func (s DS1820) toJSON() ([]byte, error) {
+	return json.Marshal(s)
 }

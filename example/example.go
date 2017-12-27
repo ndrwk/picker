@@ -31,14 +31,16 @@ func main() {
 			log.Fatalf("error: %v", pickerError)
 		}
 
-		values := make(chan picker.Result, 1)
+		values := make(chan picker.Message, 1)
 		picker.Run(values)
 
 		for res := range values {
 			if res.Error != nil {
 				log.Fatalf("error: %v", res.Error)
 			}
-			fmt.Println(res.Message)
+			fmt.Println(res.TimeStamp.String())
+			fmt.Println("Device:", res.DeviceAddress)
+			fmt.Println(string(res.SensorJson))
 		}
 	}
 }

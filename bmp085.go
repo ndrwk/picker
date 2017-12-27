@@ -1,12 +1,15 @@
 package picker
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+)
 
 type BMP085 struct {
-	Name     string
+	Name        string
 	Temperature float32
-	Pressure float32
-	Address  []byte
+	Pressure    float32
+	Address     []byte
 }
 
 func (s BMP085) toString() string {
@@ -22,14 +25,6 @@ func (s *BMP085) updateValues(values []float32) {
 	s.Temperature = values[1]
 }
 
-func (s BMP085) readName() string {
-	return s.Name
-}
-
-func (s *BMP085) updateName(name string) {
-	s.Name = name
-}
-
 func (s BMP085) readAddr() []byte {
 	return s.Address
 }
@@ -41,3 +36,6 @@ func (s *BMP085) setAddr(addr []byte) {
 	}
 }
 
+func (s BMP085) toJSON() ([]byte, error) {
+	return json.Marshal(s)
+}
