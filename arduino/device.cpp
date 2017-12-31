@@ -61,21 +61,21 @@ void transfer_data(char *buf, unsigned char cnt) {
 }
 
 unsigned short get_crc(char *buf, unsigned char cnt) {
-  unsigned short temp, temp2, flag;
-  temp = 0xFFFF;
+  unsigned short crc, tmp_val, flag;
+  crc = 0xFFFF;
   for (int i = 0; i < cnt; i++) {
-    temp ^= (unsigned char)buf[i];
+    crc ^= (unsigned char)buf[i];
     for (int j = 1; j <= 8; j++) {
-      flag = temp & 0x0001;
-      temp >>= 1;
+      flag = crc & 0x0001;
+      crc >>= 1;
       if (flag)
-        temp ^= 0xA001;
+        crc ^= 0xA001;
     }
   }
-  temp2 = temp >> 8;
-  temp = (temp << 8) | temp2;
-  temp &= 0xFFFF;
-  return temp;
+  tmp_val = crc >> 8;
+  crc = (crc << 8) | tmp_val;
+  crc &= 0xFFFF;
+  return crc;
 }
 
 int add_crc(char *buf, unsigned char cnt) {
@@ -149,8 +149,8 @@ void setup() {
 
 void loop() {
 #ifdef BMP085ENABLE
-  int32_t bmp_pressure = (int32_t)(bmp085.readPressure() / 133.3224);
-  float bmp_temperature = bmp085.readTemperature();
+  int32_t bmp_pressure;
+  float bmp_temperature;
 #endif
 #ifdef DS1820ENABLE
   numbers = 0;
@@ -215,6 +215,8 @@ void loop() {
 #endif
 #ifdef BMP085ENABLE
           case 2:
+            bmp_pressure = (int32_t)(bmp085.readPressure() / 133.3224);
+            bmp_temperature = bmp085.readTemperature();
             read_write_buf[0] = LOC_ADR;
             memcpy(&read_write_buf[1], &bmp_pressure, 4);
             memcpy(&read_write_buf[5], &bmp_temperature, 4);
