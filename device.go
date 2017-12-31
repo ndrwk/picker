@@ -44,6 +44,7 @@ func (d *Device) close() error {
 }
 
 func (d *Device) communicate(request Buf) (Buf, error) {
+	d.port.inUse.Lock()
 	writeError := d.port.write(request.addCrc().slip())
 	if writeError != nil {
 		return nil, errors.New("Device: Write: " + writeError.Error())
@@ -59,6 +60,7 @@ func (d *Device) communicate(request Buf) (Buf, error) {
 	if !unslipped.checkCrc() {
 		return nil, errors.New(" Device: CRC error")
 	}
+	d.port.inUse.Unlock()
 	return unslipped.removeCrc(), nil
 }
 
@@ -96,9 +98,9 @@ func (d *Device) updateDS1820Sensors() error {
 		sernum := msg[i*12+6 : i*12+14]
 		values := make(map[string]float32)
 		values["temperature"] = temperature
-		isExist := updateIfExist(sernum, values, "DS1820")
+		isExist := updateIfExist(sernum, values, "ds18b20")
 		if !isExist {
-			newSensor := Sensor{Values: values, Address: sernum, Name: "DS1820"}
+			newSensor := Sensor{Values: values, Address: sernum, Name: "ds18b20"}
 			d.sensors = append(d.sensors, newSensor)
 		}
 	}
@@ -134,9 +136,9 @@ func (d *Device) updateDHT22() error {
 	values := make(map[string]float32)
 	values["temperature"] = temperature
 	values["humidity"] = humidity
-	isExist := updateIfExist(sernum, values, "DHT22")
+	isExist := updateIfExist(sernum, values, "dht22")
 	if !isExist {
-		newSensor := Sensor{Values: values, Address: sernum, Name: "DHT22"}
+		newSensor := Sensor{Values: values, Address: sernum, Name: "dht22"}
 		d.sensors = append(d.sensors, newSensor)
 	}
 	return nil
@@ -151,15 +153,16 @@ func (d *Device) updateBMP085Sensors() error {
 		return commError
 	}
 	pressure := binary.LittleEndian.Uint32(msg[1:5])
-	temperature := 100.0
+	tempBits := binary.LittleEndian.Uint32(msg[5:9])
+	temperature := math.Float32frombits(tempBits)
 	var sernum Buf
 	sernum = append(sernum, msg[5])
 	values := make(map[string]float32)
 	values["pressure"] = float32(pressure)
-	values["temperature"] = float32(temperature)
-	isExist := updateIfExist(sernum, values, "BMP085")
+	values["temperature"] = temperature
+	isExist := updateIfExist(sernum, values, "bmp085")
 	if !isExist {
-		newSensor := Sensor{Values: values, Address: sernum, Name: "BMP085"}
+		newSensor := Sensor{Values: values, Address: sernum, Name: "bmp085"}
 		d.sensors = append(d.sensors, newSensor)
 	}
 	return nil

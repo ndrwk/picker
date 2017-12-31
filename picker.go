@@ -16,9 +16,15 @@ type Message struct {
 	TimeStamp     time.Time
 	DeviceAddress byte
 	Sensor
-	Error         error
+	Error error
 }
 
+type Task struct {
+	Ticker *time.Ticker
+	Sensor SensorConfig
+}
+
+var tasks []Task
 var device Device
 var port Port
 var config Env
@@ -86,7 +92,7 @@ func runCmd(cmdStr string) error {
 }
 
 func Create() error {
-	port = Port{Name: config.Device.Port, Baud: config.Device.Baud, Timeout: config.Device.TimeOut}
+	port = Port{name: config.Device.Port, baud: config.Device.Baud, timeout: config.Device.TimeOut}
 	device = Device{address: config.Device.Address, port: &port, sensors: sensors{}, dtrReset: config.Device.DTRReset}
 	initDeviceError := device.init()
 	if initDeviceError != nil {
@@ -105,45 +111,76 @@ func Destroy() error {
 }
 
 func Run(valChan chan Message) {
-	ticker := time.NewTicker(time.Second * time.Duration(config.Device.QueryPeriod))
+	for _, s := range config.Device.Sensors {
+		tasks = append(tasks, Task{Ticker: time.NewTicker(time.Second * time.Duration(s.Period)), Sensor: s})
+	}
+	fmt.Println(tasks)
+	for _, t := range tasks {
+		go doTask(t, valChan)
+	}
+}
+
+func doTask(t Task, valChan chan Message) {
+	for range t.Ticker.C {
+		ReadSensor(valChan, t.Sensor.Type)
+	}
+}
+
+func RunAll(valChan chan Message, period int) {
+	ticker := time.NewTicker(time.Second * time.Duration(period))
 	go func() {
 		for range ticker.C {
-			ReadSensors(valChan)
+			ReadAllSensors(valChan)
 		}
 	}()
 }
 
-func ReadSensors(valChan chan Message) error {
+func RunOne(valChan chan Message, sensorType string, period int) {
+	ticker := time.NewTicker(time.Second * time.Duration(period))
+	go func() {
+		for range ticker.C {
+			ReadSensor(valChan, sensorType)
+		}
+	}()
+}
+
+func ReadAllSensors(valChan chan Message) error {
 	for _, sensor := range config.Device.Sensors {
-		sensorErr := updateSensor(sensor)
+		sensorErr := updateSensor(sensor.Type)
 		if sensorErr != nil {
 			valChan <- Message{Error: sensorErr}
 			return sensorErr
 		}
 	}
 	for _, s := range device.sensors {
-			valChan <- Message{Sensor: s, Error: nil, TimeStamp: time.Now(), DeviceAddress: device.address}
+		valChan <- Message{Sensor: s, Error: nil, TimeStamp: time.Now(), DeviceAddress: device.address}
 	}
 	return nil
 }
 
-func updateSensor(s SensorConfig) error {
-	switch s.Type {
-	case "ds18b20":
-		tempErr := device.updateDS1820Sensors()
-		if tempErr != nil {
-			return tempErr
-		}
-	case "bmp085":
-		pressErr := device.updateBMP085Sensors()
-		if pressErr != nil {
-			return pressErr
-		}
-	case "dht22":
-		err := device.updateDHT22()
-		if err != nil {
-			return err
+func ReadSensor(valChan chan Message, sensorType string) error {
+	sensorErr := updateSensor(sensorType)
+	if sensorErr != nil {
+		valChan <- Message{Error: sensorErr}
+		return sensorErr
+	}
+	for _, s := range device.sensors {
+		if s.Name == sensorType {
+			valChan <- Message{Sensor: s, Error: nil, TimeStamp: time.Now(), DeviceAddress: device.address}
 		}
 	}
 	return nil
+}
+
+func updateSensor(sensorType string) error {
+	var err error
+	switch sensorType {
+	case "ds18b20":
+		err = device.updateDS1820Sensors()
+	case "bmp085":
+		err = device.updateBMP085Sensors()
+	case "dht22":
+		err = device.updateDHT22()
+	}
+	return err
 }

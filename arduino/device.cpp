@@ -149,7 +149,8 @@ void setup() {
 
 void loop() {
 #ifdef BMP085ENABLE
-  int32_t pressure = (int32_t)(bmp085.readPressure() / 133.3224);
+  int32_t bmp_pressure = (int32_t)(bmp085.readPressure() / 133.3224);
+  float bmp_temperature = bmp085.readTemperature();
 #endif
 #ifdef DS1820ENABLE
   numbers = 0;
@@ -215,9 +216,10 @@ void loop() {
 #ifdef BMP085ENABLE
           case 2:
             read_write_buf[0] = LOC_ADR;
-            memcpy(&read_write_buf[1], &pressure, 4);
-            read_write_buf[5] = 0;
-            len = add_crc(read_write_buf, 6);
+            memcpy(&read_write_buf[1], &bmp_pressure, 4);
+            memcpy(&read_write_buf[5], &bmp_temperature, 4);
+            read_write_buf[9] = 0;
+            len = add_crc(read_write_buf, 10);
             delay(10);
             transfer_data(read_write_buf, len);
             break;

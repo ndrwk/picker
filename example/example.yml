@@ -5,11 +5,13 @@ device:
   baud: 115200
   timeout: 3000
   dtrreset: true
-  queryperiod: 5
   sensors:
     - type: ds18b20
       pins: D10
+      period: 5
     - type: bmp085
       pins: i2c
+      period: 20
     - type: dht22
       pins: D8
+      period: 10

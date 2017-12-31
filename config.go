@@ -10,6 +10,7 @@ import (
 type SensorConfig struct {
 	Type string
 	Pins string
+	Period int
 }
 
 type DeviceConfig struct {
@@ -18,7 +19,6 @@ type DeviceConfig struct {
 	Baud     int
 	TimeOut  int
 	DTRReset bool
-	QueryPeriod int
 	Sensors  []SensorConfig
 }
 

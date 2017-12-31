@@ -33,6 +33,9 @@ func main() {
 
 		values := make(chan picker.Message, 1)
 		picker.Run(values)
+		//picker.RunAll(values, 5)
+		//picker.RunOne(values, "ds18b20", 5)
+		//picker.ReadSensor(values, "ds18b20")
 
 		for res := range values {
 			if res.Error != nil {
