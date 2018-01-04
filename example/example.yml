@@ -3,7 +3,7 @@ device:
   address: 0
   port: /dev/ttyUSB0
   baud: 115200
-  timeout: 3000
+  timeout: 5000
   dtrreset: true
   sensors:
     - type: ds18b20
@@ -15,3 +15,9 @@ device:
     - type: dht22
       pins: D8
       period: 10
+#    - type: analog
+#      pins: A1
+#      period: 5
+#    - type: digital
+#      pins: D3
+#      period: 2

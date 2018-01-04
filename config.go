@@ -60,7 +60,12 @@ func (dc DeviceConfig) makeHeader() (string, error) {
 			res += "#define DHT22_PIN " + v.Pins[1:] + "\n"
 		case "bmp085":
 			res += "#define BMP085ENABLE\n"
+		case "analog":
+			res += "#define ANALOGREADENABLE\n"
+		case "digital":
+			res += "#define DIGITALREADENABLE\n"
 		}
+
 	}
 	return res, nil
 }

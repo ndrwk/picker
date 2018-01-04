@@ -6,6 +6,7 @@ import (
 	"math"
 	"reflect"
 	"time"
+	"fmt"
 )
 
 type Sensor struct {
@@ -45,6 +46,7 @@ func (d *Device) close() error {
 
 func (d *Device) communicate(request Buf) (Buf, error) {
 	d.port.inUse.Lock()
+	fmt.Println(">>>", request.toString())
 	writeError := d.port.write(request.addCrc().slip())
 	if writeError != nil {
 		return nil, errors.New("Device: Write: " + writeError.Error())
@@ -60,8 +62,10 @@ func (d *Device) communicate(request Buf) (Buf, error) {
 	if !unslipped.checkCrc() {
 		return nil, errors.New(" Device: CRC error")
 	}
+	res := unslipped.removeCrc()
+	fmt.Println("<<<", res.toString())
 	d.port.inUse.Unlock()
-	return unslipped.removeCrc(), nil
+	return res, nil
 }
 
 func (d *Device) ping() error {
@@ -156,7 +160,7 @@ func (d *Device) updateBMP085Sensors() error {
 	tempBits := binary.LittleEndian.Uint32(msg[5:9])
 	temperature := math.Float32frombits(tempBits)
 	var sernum Buf
-	sernum = append(sernum, msg[5])
+	sernum = append(sernum, msg[9])
 	values := make(map[string]float32)
 	values["pressure"] = float32(pressure)
 	values["temperature"] = temperature

@@ -6,6 +6,7 @@
 #include <DallasTemperature.h>
 #include <OneWire.h>
 const unsigned char MAXNUMBERS = 10;
+const int wait_ds1820 = 750 / (1 << (12 - TEMPERATURE_PRECISION));
 OneWire one_wire(ONE_WIRE_BUS);
 DallasTemperature sensors_ds1820(&one_wire);
 DeviceAddress dallas_addresses[MAXNUMBERS];
@@ -163,6 +164,7 @@ void loop() {
     sensors_ds1820.setResolution(dallas_addresses[i], TEMPERATURE_PRECISION);
   }
   sensors_ds1820.requestTemperatures();
+  delay(wait_ds1820);
   float temp;
 #endif
   if (msglen) {

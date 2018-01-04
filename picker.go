@@ -114,7 +114,6 @@ func Run(valChan chan Message) {
 	for _, s := range config.Device.Sensors {
 		tasks = append(tasks, Task{Ticker: time.NewTicker(time.Second * time.Duration(s.Period)), Sensor: s})
 	}
-	fmt.Println(tasks)
 	for _, t := range tasks {
 		go doTask(t, valChan)
 	}
@@ -126,14 +125,14 @@ func doTask(t Task, valChan chan Message) {
 	}
 }
 
-func RunAll(valChan chan Message, period int) {
-	ticker := time.NewTicker(time.Second * time.Duration(period))
-	go func() {
-		for range ticker.C {
-			ReadAllSensors(valChan)
-		}
-	}()
-}
+//func RunAll(valChan chan Message, period int) {
+//	ticker := time.NewTicker(time.Second * time.Duration(period))
+//	go func() {
+//		for range ticker.C {
+//			ReadAllSensors(valChan)
+//		}
+//	}()
+//}
 
 func RunOne(valChan chan Message, sensorType string, period int) {
 	ticker := time.NewTicker(time.Second * time.Duration(period))
