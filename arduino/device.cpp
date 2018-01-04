@@ -16,6 +16,8 @@ unsigned char numbers = 0;
 #ifdef BMP085ENABLE
 #include <Adafruit_BMP085.h>
 Adafruit_BMP085 bmp085;
+int32_t bmp_pressure;
+float bmp_temperature;
 #endif
 
 #ifdef DHT22ENABLE
@@ -149,24 +151,6 @@ void setup() {
 }
 
 void loop() {
-#ifdef BMP085ENABLE
-  int32_t bmp_pressure;
-  float bmp_temperature;
-#endif
-#ifdef DS1820ENABLE
-  numbers = 0;
-  for (int i = 0; i < MAXNUMBERS; i++) {
-    if (!sensors_ds1820.getAddress(dallas_addresses[i], i))
-      break;
-    numbers++;
-  }
-  for (unsigned char i = 0; i < numbers; i++) {
-    sensors_ds1820.setResolution(dallas_addresses[i], TEMPERATURE_PRECISION);
-  }
-  sensors_ds1820.requestTemperatures();
-  delay(wait_ds1820);
-  float temp;
-#endif
   if (msglen) {
     unsigned short msgcrc;
     memcpy(&msgcrc, &read_write_buf[msglen - 2], 2);
@@ -196,6 +180,12 @@ void loop() {
           switch (mtd) {
 #ifdef DS1820ENABLE
           case 0:
+            numbers = 0;
+            for (int i = 0; i < MAXNUMBERS; i++) {
+              if (!sensors_ds1820.getAddress(dallas_addresses[i], i))
+                break;
+              numbers++;
+            }
             read_write_buf[0] = LOC_ADR;
             read_write_buf[1] = numbers;
             len = add_crc(read_write_buf, 2);
@@ -203,6 +193,18 @@ void loop() {
             transfer_data(read_write_buf, len);
             break;
           case 1:
+            numbers = 0;
+            for (int i = 0; i < MAXNUMBERS; i++) {
+              if (!sensors_ds1820.getAddress(dallas_addresses[i], i))
+                break;
+              numbers++;
+            }
+            for (unsigned char i = 0; i < numbers; i++) {
+              sensors_ds1820.setResolution(dallas_addresses[i], TEMPERATURE_PRECISION);
+            }
+            sensors_ds1820.requestTemperatures();
+            delay(wait_ds1820);
+            float temp;
             read_write_buf[0] = LOC_ADR;
             read_write_buf[1] = numbers;
             for (int i = 0; i < numbers; i++) {
@@ -249,4 +251,5 @@ void loop() {
     }
     msglen = 0;
   }
+  delay(100);
 }
