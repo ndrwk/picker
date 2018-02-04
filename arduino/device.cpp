@@ -23,7 +23,15 @@ float bmp_temperature;
 #ifdef DHT22ENABLE
 #include <dht.h>
 dht DHT;
+float dht_humidity;
+float dht_temperature;
 #endif
+
+#ifdef ANALOGREADENABLE
+int analog_number = sizeof(analog_pins)/sizeof(unsigned char);
+unsigned short value;
+#endif
+
 
 #define LED 13
 
@@ -145,7 +153,6 @@ void setup() {
 #ifdef DS1820ENABLE
   sensors_ds1820.begin();
 #endif
-
   pinMode(LED, OUTPUT);
   // servo.attach(SERVO);
 }
@@ -233,13 +240,27 @@ void loop() {
 #ifdef DHT22ENABLE
           case 3:
             DHT.read22(DHT22_PIN);
-            float dht_humidity = DHT.humidity;
-            float dht_temperature = DHT.temperature;
+            dht_humidity = DHT.humidity;
+            dht_temperature = DHT.temperature;
             read_write_buf[0] = LOC_ADR;
             memcpy(&read_write_buf[1], &dht_humidity, 4);
             memcpy(&read_write_buf[5], &dht_temperature, 4);
             read_write_buf[9] = 0;
             len = add_crc(read_write_buf, 10);
+            delay(10);
+            transfer_data(read_write_buf, len);
+            break;
+#endif
+#ifdef ANALOGREADENABLE
+          case 4:
+            read_write_buf[0] = LOC_ADR;
+            read_write_buf[1] = analog_number;
+            for (int i = 0; i < analog_number; i++){
+              value = 0x03ff & analogRead(analog_pins[i]);
+              memcpy(&read_write_buf[i * 3 + 2], &analog_pins[i], 1);
+              memcpy(&read_write_buf[i * 3 + 3], &value, 2);
+            }
+            len = add_crc(read_write_buf, analog_number * 3 + 2);
             delay(10);
             transfer_data(read_write_buf, len);
             break;

@@ -180,6 +180,8 @@ func updateSensor(sensorType string) error {
 		err = device.updateBMP085Sensors()
 	case "dht22":
 		err = device.updateDHT22()
+	case "analog":
+		err = device.updateAnalogInputs()
 	}
 	return err
 }

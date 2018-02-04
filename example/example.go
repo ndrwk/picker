@@ -2,9 +2,9 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"github.com/ndrwk/picker"
 	"log"
-	"fmt"
 )
 
 func main() {

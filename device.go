@@ -171,3 +171,26 @@ func (d *Device) updateBMP085Sensors() error {
 	}
 	return nil
 }
+
+func (d *Device) updateAnalogInputs() error {
+	const getCommand1 byte = 0x01
+	const getCommand2 byte = 0x04
+	request := Buf{d.address, getCommand1, getCommand2}
+	msg, commError := d.communicate(request)
+	if commError != nil {
+		return commError
+	}
+	number := int(msg[1])
+	for i := 0; i < number; i++ {
+		analogValue := binary.LittleEndian.Uint16(msg[i*3+3 : i*3+5])
+		sernum := msg[i*3+2 : i*3+3]
+		values := make(map[string]float32)
+		values["analog"] = float32(analogValue)
+		isExist := updateIfExist(sernum, values, "analog")
+		if !isExist {
+			newSensor := Sensor{Values: values, Address: sernum, Name: "analog"}
+			d.sensors = append(d.sensors, newSensor)
+		}
+	}
+	return nil
+}
