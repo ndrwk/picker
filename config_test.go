@@ -13,9 +13,9 @@ device:
   dtrreset: true
   sensors:
     - type: ds18b20
-      pins: D10
+      pins:
+        - D10
     - type: bmp085
-      pins: i2c
 `
 	yml := []byte(data)
 	config := Env{}
