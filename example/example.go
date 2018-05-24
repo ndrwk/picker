@@ -3,8 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/ndrwk/picker"
 	"log"
+
+	"github.com/ndrwk/picker"
 )
 
 func main() {
@@ -12,6 +13,7 @@ func main() {
 	ymlFile := flag.String("yml", "example.yml", "yaml config file name")
 	makeFlag := flag.Bool("make_upload", false, "make source & upload flag")
 	runFlag := flag.Bool("run", false, "run picker flag")
+	sourcePath := flag.String("source_path", "..", "source path")
 	flag.Parse()
 
 	pickerError := picker.LoadConfig(*ymlFile)
@@ -20,7 +22,7 @@ func main() {
 	}
 
 	if *makeFlag {
-		makeError := picker.MakeFirmWare()
+		makeError := picker.MakeFirmWare(*sourcePath)
 		if makeError != nil {
 			log.Fatalf("error: %v", makeError)
 		}

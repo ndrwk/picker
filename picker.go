@@ -42,12 +42,12 @@ func LoadConfig(ymlFile string) error {
 	return nil
 }
 
-func MakeFirmWare() error {
+func MakeFirmWare(sourcePath string) error {
 	os.Mkdir(".picker", 0777)
 	cmd0 := "platformio init --board nanoatmega328 --project-dir .picker" + "\n"
 	cmd0 += "platformio lib --global install 525@1.0.0" + "\n" // Adafruit BMP085 Library @ 1.0.0
 	cmd0 += "platformio lib --global install 54@3.7.7" + "\n"  // OneWire @ 2.3.2
-	cmd0 += "platformio lib --global install 1336@None"        // DHTlib@None
+	cmd0 += "platformio lib --global install 1336"             // DHTlib
 	err := runCmd(cmd0)
 	if err != nil {
 		return err
@@ -58,7 +58,7 @@ func MakeFirmWare() error {
 	}
 	hPath := filepath.Join(".picker", "src", "config.h")
 	ioutil.WriteFile(hPath, []byte(hFile), 0777)
-	templatePath := filepath.Join("..", "arduino", "device.cpp")
+	templatePath := filepath.Join(sourcePath, "arduino", "device.cpp")
 	source, err := ioutil.ReadFile(templatePath)
 	if err != nil {
 		return err
