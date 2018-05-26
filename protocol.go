@@ -127,7 +127,7 @@ func (b Buf) unSlip() (Buf, error) {
 	return unslipped, nil
 }
 
-func (b Buf) toString() string {
+func (b Buf) String() string {
 	s := ""
 	if len(b) > 0 {
 		for i := 0; i < (len(b) - 1); i++ {
@@ -137,8 +137,4 @@ func (b Buf) toString() string {
 		s += fmt.Sprintf("%02X", b[len(b)-1])
 	}
 	return s
-}
-
-func (b Buf) printHex() {
-	fmt.Println(b.toString())
 }

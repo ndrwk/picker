@@ -3,10 +3,10 @@ package picker
 import (
 	"encoding/binary"
 	"errors"
+	"fmt"
 	"math"
 	"reflect"
 	"time"
-	"fmt"
 )
 
 type Sensor struct {
@@ -46,7 +46,7 @@ func (d *Device) close() error {
 
 func (d *Device) communicate(request Buf) (Buf, error) {
 	d.port.inUse.Lock()
-	fmt.Println(">>>", request.toString())
+	fmt.Println(">>>", request)
 	writeError := d.port.write(request.addCrc().slip())
 	if writeError != nil {
 		return nil, errors.New("Device: Write: " + writeError.Error())
@@ -63,7 +63,7 @@ func (d *Device) communicate(request Buf) (Buf, error) {
 		return nil, errors.New(" Device: CRC error")
 	}
 	res := unslipped.removeCrc()
-	fmt.Println("<<<", res.toString())
+	fmt.Println("<<<", res)
 	d.port.inUse.Unlock()
 	return res, nil
 }
@@ -114,7 +114,7 @@ func (d *Device) updateDS1820Sensors() error {
 func updateIfExist(sernum []byte, values map[string]float32, name string) bool {
 	for _, sensor := range device.sensors {
 		if reflect.DeepEqual(sensor.Address, sernum) && sensor.Name == name {
-			for k := range values{
+			for k := range values {
 				sensor.Values[k] = values[k]
 			}
 			return true

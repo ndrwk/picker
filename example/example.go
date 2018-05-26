@@ -10,6 +10,9 @@ import (
 
 func main() {
 
+	// usage1 - example -yml /home/drew/go/src/github.com/ndrwk/picker/example/example.yml -source_path /home/drew/go/src/github.com/ndrwk/picker -make_upload
+	// usage2 - example -yml /home/drew/go/src/github.com/ndrwk/picker/example/example.yml -run
+
 	ymlFile := flag.String("yml", "example.yml", "yaml config file name")
 	makeFlag := flag.Bool("make_upload", false, "make source & upload flag")
 	runFlag := flag.Bool("run", false, "run picker flag")

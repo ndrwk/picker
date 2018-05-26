@@ -1,6 +1,7 @@
 package picker
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -78,10 +79,10 @@ func TestBUF_UnSlip(t *testing.T) {
 	}
 }
 
-func TestBuf_ToString(t *testing.T) {
+func TestBuf_String(t *testing.T) {
 	buf := Buf{0xC0, 0x00, 0x01, 0x00, 0x80, 0xC7, 0x41, 0x10, 0x60, 0x3B, 0x4F, 0x00, 0x08, 0x00, 0xDB, 0xDC, 0x2A, 0x39, 0xC0}
 	res := "C0 00 01 00 80 C7 41 10 60 3B 4F 00 08 00 DB DC 2A 39 C0"
-	if buf.toString() != res {
+	if fmt.Sprint(buf) != res {
 		t.Error("must be equal")
 	}
 }
