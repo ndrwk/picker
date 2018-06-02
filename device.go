@@ -3,7 +3,7 @@ package picker
 import (
 	"encoding/binary"
 	"errors"
-	"fmt"
+	"log"
 	"math"
 	"reflect"
 	"time"
@@ -22,6 +22,7 @@ type Device struct {
 	port     *Port
 	address  byte
 	dtrReset bool
+	logger   *log.Logger
 }
 
 func (d *Device) init() error {
@@ -45,34 +46,55 @@ func (d *Device) close() error {
 }
 
 func (d *Device) communicate(request Buf) (Buf, error) {
-	d.port.inUse.Lock()
-	fmt.Println(">>>", request)
-	writeError := d.port.write(request.addCrc().slip())
-	if writeError != nil {
-		return nil, errors.New("Device: Write: " + writeError.Error())
+	var res Buf
+	var err error
+	d.logger.Println(">>> ", request)
+	attempts := 5
+	for attempts > 0 {
+		err = nil
+		writeError := d.port.write(request.addCrc().slip())
+		if writeError != nil {
+			err = errors.New("Device: Write: " + writeError.Error())
+			attempts--
+			d.logger.Println(err, "attempt - ", attempts)
+			continue
+		}
+		response, readError := d.port.read()
+		if readError != nil {
+			err = errors.New("Device: Read: " + readError.Error())
+			attempts--
+			d.logger.Println(err, "attempt - ", attempts)
+			continue
+		}
+		unslipped, unSlipError := response.unSlip()
+		if unSlipError != nil {
+			err = errors.New("Device: " + unSlipError.Error())
+		}
+		if !unslipped.checkCrc() {
+			err = errors.New("Device: CRC error")
+			attempts--
+			d.logger.Println(err, "attempt - ", attempts)
+			continue
+		}
+		res = unslipped.removeCrc()
+		break
 	}
-	response, readError := d.port.read()
-	if readError != nil {
-		return nil, errors.New("Device: Read: " + readError.Error())
+	d.logger.Println("<<< ", res)
+	if err == nil {
+		return res, nil
+	} else {
+		return nil, err
 	}
-	unslipped, unSlipError := response.unSlip()
-	if unSlipError != nil {
-		return nil, errors.New("Device: " + unSlipError.Error())
-	}
-	if !unslipped.checkCrc() {
-		return nil, errors.New(" Device: CRC error")
-	}
-	res := unslipped.removeCrc()
-	fmt.Println("<<<", res)
-	d.port.inUse.Unlock()
-	return res, nil
 }
 
 func (d *Device) ping() error {
 	const pingCommand byte = 0x00
 	rightAnswer := []byte{d.address, 0x55, 0xAA, 0x55, 0xAA}
 	request := Buf{d.address, pingCommand}
+	d.port.inUse.Lock()
+	d.logger.Println("Ping")
 	msg, commError := d.communicate(request)
+	d.port.inUse.Unlock()
 	if commError != nil {
 		return commError
 	}
@@ -91,7 +113,10 @@ func (d *Device) updateDS1820Sensors() error {
 	const getCommand1 byte = 0x01
 	const getCommand2 byte = 0x01
 	request := Buf{d.address, getCommand1, getCommand2}
+	d.port.inUse.Lock()
+	d.logger.Println("Read DS1820")
 	msg, commError := d.communicate(request)
+	d.port.inUse.Unlock()
 	if commError != nil {
 		return commError
 	}
@@ -127,7 +152,10 @@ func (d *Device) updateDHT22() error {
 	const getCommand1 byte = 0x01
 	const getCommand2 byte = 0x03
 	request := Buf{d.address, getCommand1, getCommand2}
+	d.port.inUse.Lock()
+	d.logger.Println("Read DHT22")
 	msg, commError := d.communicate(request)
+	d.port.inUse.Unlock()
 	if commError != nil {
 		return commError
 	}
@@ -152,7 +180,10 @@ func (d *Device) updateBMP085Sensors() error {
 	const getCommand1 byte = 0x01
 	const getCommand2 byte = 0x02
 	request := Buf{d.address, getCommand1, getCommand2}
+	d.port.inUse.Lock()
+	d.logger.Println("Read BMP085")
 	msg, commError := d.communicate(request)
+	d.port.inUse.Unlock()
 	if commError != nil {
 		return commError
 	}
@@ -176,7 +207,10 @@ func (d *Device) updateAnalogInputs() error {
 	const getCommand1 byte = 0x01
 	const getCommand2 byte = 0x04
 	request := Buf{d.address, getCommand1, getCommand2}
+	d.port.inUse.Lock()
+	d.logger.Println("Read analog inputs")
 	msg, commError := d.communicate(request)
+	d.port.inUse.Unlock()
 	if commError != nil {
 		return commError
 	}

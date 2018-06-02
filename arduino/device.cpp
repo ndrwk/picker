@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include "config.h"
 
 #ifdef DS1820ENABLE
@@ -52,23 +53,23 @@ char read_write_buf[256];
 int msglen = 0;
 
 void transfer_data(char *buf, unsigned char cnt) {
-  Serial.print(SLIP_END);
+  Serial.write(SLIP_END);
   for (int i = 0; i < cnt; i++) {
     switch (buf[i]) {
     case SLIP_END:
-      Serial.print(SLIP_ESC);
-      Serial.print(SLIP_ESC_END);
+      Serial.write(SLIP_ESC);
+      Serial.write(SLIP_ESC_END);
       break;
     case SLIP_ESC:
-      Serial.print(SLIP_ESC);
-      Serial.print(SLIP_ESC_ESC);
+      Serial.write(SLIP_ESC);
+      Serial.write(SLIP_ESC_ESC);
       break;
     default:
-      Serial.print(buf[i]);
+      Serial.write(buf[i]);
       break;
     }
   }
-  Serial.print(SLIP_END);
+  Serial.write(SLIP_END);
 }
 
 unsigned short get_crc(char *buf, unsigned char cnt) {

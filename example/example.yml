@@ -5,6 +5,7 @@ device:
   baud: 115200
   timeout: 10000
   dtrreset: true
+  log: #log.txt #off
   sensors:
     - type: ds18b20
       pins:

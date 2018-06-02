@@ -3,8 +3,9 @@ package picker
 import (
 	"errors"
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"strconv"
+
+	"gopkg.in/yaml.v2"
 )
 
 type SensorConfig struct {
@@ -19,6 +20,7 @@ type DeviceConfig struct {
 	Baud     int
 	TimeOut  int
 	DTRReset bool
+	Log      string
 	Sensors  []SensorConfig
 }
 

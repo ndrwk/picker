@@ -46,8 +46,8 @@ func main() {
 			if res.Error != nil {
 				log.Fatalf("error: %v", res.Error)
 			}
-			fmt.Println(res.TimeStamp.String())
-			fmt.Println("Device:", res.DeviceAddress)
+			// fmt.Println(res.TimeStamp.String())
+			// fmt.Println("Device:", res.DeviceAddress)
 			fmt.Printf("%+v\n", res.Sensor)
 		}
 	}

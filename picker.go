@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -92,8 +94,26 @@ func runCmd(cmdStr string) error {
 }
 
 func Create() error {
+	logContext := fmt.Sprint("#", config.Device.Address, ": ")
+	var logFileName string
+	var logFile io.Writer
+	var logErr error
+	if config.Device.Log != "" {
+		if config.Device.Log == "off" {
+			logFileName = os.DevNull
+		} else {
+			logFileName = config.Device.Log
+		}
+		logFile, logErr = os.OpenFile(logFileName, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+		if logErr != nil {
+			logFile = os.Stdout
+		}
+	} else {
+		logFile = os.Stdout
+	}
+	logger := log.New(logFile, logContext, log.Ldate|log.Ltime)
 	port = Port{name: config.Device.Port, baud: config.Device.Baud, timeout: config.Device.TimeOut}
-	device = Device{address: config.Device.Address, port: &port, sensors: sensors{}, dtrReset: config.Device.DTRReset}
+	device = Device{address: config.Device.Address, port: &port, sensors: sensors{}, dtrReset: config.Device.DTRReset, logger: logger}
 	initDeviceError := device.init()
 	if initDeviceError != nil {
 		return initDeviceError
