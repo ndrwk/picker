@@ -29,25 +29,35 @@ float dht_temperature;
 #endif
 
 #ifdef ANALOGREADENABLE
-int analog_number = sizeof(analog_pins)/sizeof(unsigned char);
-unsigned short value;
+int analog_number = sizeof(analog_pins);
+unsigned short analog_value;
 #endif
 
+#ifdef SERVOENABLE
+#include <Servo.h>
+Servo servos[servo_numbers];
+#endif
 
 #define LED 13
-
-// #define SERVO 9
 
 const char SLIP_END = '\xC0';
 const char SLIP_ESC = '\xDB';
 const char SLIP_ESC_END = '\xDC';
 const char SLIP_ESC_ESC = '\xDD';
 const char CS_PING = '\x00';
-const char CS_INFO = '\x01';
+const char CS_RD = '\x01';
+const char CS_WR = '\x02';
+const char MTD_DS1820_NUM = '\x00';
+const char MTD_DS1820 = '\x01';
+const char MTD_BMP085 = '\x02';
+const char MTD_DHT = '\x03';
+const char MTD_ANALOG = '\x04';
+const char MTD_SERVO = '\x00';
+const char OK = '\x00';
+const char ERROR = '\x01';
 const char LOC_ADR = ADDRESS;
 const long BAUD = BAUDRATE;
 
-// Servo servo;
 
 char read_write_buf[256];
 int msglen = 0;
@@ -154,8 +164,12 @@ void setup() {
 #ifdef DS1820ENABLE
   sensors_ds1820.begin();
 #endif
-  pinMode(LED, OUTPUT);
-  // servo.attach(SERVO);
+#ifdef SERVOENABLE
+  for (int i= 0; i < servo_numbers; i++){
+    servos[i].attach(servo_pins[i]);
+  }
+#endif
+pinMode(LED, OUTPUT);
 }
 
 void loop() {
@@ -168,6 +182,8 @@ void loop() {
       char adr = read_write_buf[0];
       char cs = read_write_buf[1];
       char mtd = read_write_buf[2];
+      int index = 0;
+      int value = 0;
       int len;
       if (adr == LOC_ADR) {
         switch (cs) {
@@ -184,10 +200,10 @@ void loop() {
           delay(100);
           digitalWrite(LED, LOW);
           break;
-        case CS_INFO:
+        case CS_RD:
           switch (mtd) {
 #ifdef DS1820ENABLE
-          case 0:
+          case MTD_DS1820_NUM:
             numbers = 0;
             for (int i = 0; i < MAXNUMBERS; i++) {
               if (!sensors_ds1820.getAddress(dallas_addresses[i], i))
@@ -200,7 +216,7 @@ void loop() {
             delay(100);
             transfer_data(read_write_buf, len);
             break;
-          case 1:
+          case MTD_DS1820:
             numbers = 0;
             for (int i = 0; i < MAXNUMBERS; i++) {
               if (!sensors_ds1820.getAddress(dallas_addresses[i], i))
@@ -226,7 +242,7 @@ void loop() {
             break;
 #endif
 #ifdef BMP085ENABLE
-          case 2:
+          case MTD_BMP085:
             bmp_pressure = (int32_t)(bmp085.readPressure() / 133.3224);
             bmp_temperature = bmp085.readTemperature();
             read_write_buf[0] = LOC_ADR;
@@ -239,7 +255,7 @@ void loop() {
             break;
 #endif
 #ifdef DHT22ENABLE
-          case 3:
+          case MTD_DHT:
             DHT.read22(DHT22_PIN);
             dht_humidity = DHT.humidity;
             dht_temperature = DHT.temperature;
@@ -253,13 +269,13 @@ void loop() {
             break;
 #endif
 #ifdef ANALOGREADENABLE
-          case 4:
+          case MTD_ANALOG:
             read_write_buf[0] = LOC_ADR;
             read_write_buf[1] = analog_number;
             for (int i = 0; i < analog_number; i++){
-              value = 0x03ff & analogRead(analog_pins[i]);
+              analog_value = 0x03ff & analogRead(analog_pins[i]);
               memcpy(&read_write_buf[i * 3 + 2], &analog_pins[i], 1);
-              memcpy(&read_write_buf[i * 3 + 3], &value, 2);
+              memcpy(&read_write_buf[i * 3 + 3], &analog_value, 2);
             }
             len = add_crc(read_write_buf, analog_number * 3 + 2);
             delay(10);
@@ -268,10 +284,28 @@ void loop() {
 #endif
           }
           break;
+        case CS_WR:
+          switch (mtd) {
+#ifdef SERVOENABLE
+            case MTD_SERVO:
+              index = read_write_buf[3];
+              value = read_write_buf[4];
+              // value = map(read_write_buf[4], 0, 180, 544, 2400);
+              // servos[index].writeMicroseconds(value);
+              servos[index].write(value);
+              read_write_buf[0] = LOC_ADR;
+              read_write_buf[1] = OK;
+              len = add_crc(read_write_buf, 2);
+              // delay(10);
+              transfer_data(read_write_buf, len);
+            break;
+#endif
+          }
+        break;
         }
       }
     }
     msglen = 0;
   }
-  delay(100);
+  delay(20);
 }

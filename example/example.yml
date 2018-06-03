@@ -23,6 +23,7 @@ device:
        - A1
        - A2
       period: 5
-#    - type: digital
-#      pins: D3
-#      period: 2
+  outputs:
+    - type: servo
+      pins:
+        - D9

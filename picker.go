@@ -205,3 +205,12 @@ func updateSensor(sensorType string) error {
 	}
 	return err
 }
+
+func WriteOutput(outputType string, index byte, value byte) error {
+	var err error
+	switch outputType {
+	case "servo":
+		err = device.writeServo(index, value)
+	}
+	return err
+}

@@ -110,9 +110,9 @@ func (d *Device) ping() error {
 }
 
 func (d *Device) updateDS1820Sensors() error {
-	const getCommand1 byte = 0x01
-	const getCommand2 byte = 0x01
-	request := Buf{d.address, getCommand1, getCommand2}
+	const class byte = 0x01
+	const method byte = 0x01
+	request := Buf{d.address, class, method}
 	d.port.inUse.Lock()
 	d.logger.Println("Read DS1820")
 	msg, commError := d.communicate(request)
@@ -149,9 +149,9 @@ func updateIfExist(sernum []byte, values map[string]float32, name string) bool {
 }
 
 func (d *Device) updateDHT22() error {
-	const getCommand1 byte = 0x01
-	const getCommand2 byte = 0x03
-	request := Buf{d.address, getCommand1, getCommand2}
+	const class byte = 0x01
+	const method byte = 0x03
+	request := Buf{d.address, class, method}
 	d.port.inUse.Lock()
 	d.logger.Println("Read DHT22")
 	msg, commError := d.communicate(request)
@@ -177,9 +177,9 @@ func (d *Device) updateDHT22() error {
 }
 
 func (d *Device) updateBMP085Sensors() error {
-	const getCommand1 byte = 0x01
-	const getCommand2 byte = 0x02
-	request := Buf{d.address, getCommand1, getCommand2}
+	const class byte = 0x01
+	const method byte = 0x02
+	request := Buf{d.address, class, method}
 	d.port.inUse.Lock()
 	d.logger.Println("Read BMP085")
 	msg, commError := d.communicate(request)
@@ -204,9 +204,9 @@ func (d *Device) updateBMP085Sensors() error {
 }
 
 func (d *Device) updateAnalogInputs() error {
-	const getCommand1 byte = 0x01
-	const getCommand2 byte = 0x04
-	request := Buf{d.address, getCommand1, getCommand2}
+	const class byte = 0x01
+	const method byte = 0x04
+	request := Buf{d.address, class, method}
 	d.port.inUse.Lock()
 	d.logger.Println("Read analog inputs")
 	msg, commError := d.communicate(request)
@@ -227,4 +227,22 @@ func (d *Device) updateAnalogInputs() error {
 		}
 	}
 	return nil
+}
+
+func (d *Device) writeServo(index byte, value byte) error {
+	const class byte = 2
+	const method byte = 0
+	request := Buf{d.address, class, method, index, value}
+	d.port.inUse.Lock()
+	d.logger.Println("Write", value, "to servo", index)
+	msg, commError := d.communicate(request)
+	d.port.inUse.Unlock()
+	if commError != nil {
+		return commError
+	}
+	if msg[0] == d.address && msg[1] == 0 {
+		return nil
+	} else {
+		return errors.New("Servo error")
+	}
 }

@@ -22,6 +22,7 @@ type DeviceConfig struct {
 	DTRReset bool
 	Log      string
 	Sensors  []SensorConfig
+	Outputs  []SensorConfig
 }
 
 type Env struct {
@@ -77,6 +78,27 @@ func (dc DeviceConfig) makeHeader() (string, error) {
 			}
 			res += strPins[:len(strPins)-1]
 			res += "};\n"
+		}
+	}
+	for _, v := range dc.Outputs {
+		switch v.Type {
+		case "servo":
+			if v.Pins == nil {
+				return "", errors.New("Servo config error: Servo - empty Pins")
+			}
+			res += "#define SERVOENABLE\n"
+			res += "unsigned char servo_pins[] = {"
+			strPins := ""
+			for _, pin := range v.Pins {
+				if _, err := strconv.Atoi(pin[1:]); err != nil {
+					return "", errors.New("Servo config error: Servo: " + err.Error())
+				}
+				strPins += pin[1:] + ","
+			}
+			res += strPins[:len(strPins)-1]
+			res += "};\n"
+			res += "const int servo_numbers = " + fmt.Sprint(len(v.Pins)) + ";\n"
+
 		}
 	}
 	return res, nil

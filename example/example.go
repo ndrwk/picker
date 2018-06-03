@@ -17,6 +17,7 @@ func main() {
 	makeFlag := flag.Bool("make_upload", false, "make source & upload flag")
 	runFlag := flag.Bool("run", false, "run picker flag")
 	sourcePath := flag.String("source_path", "..", "source path")
+	writeOut := flag.Bool("wr", false, "write to output")
 	flag.Parse()
 
 	pickerError := picker.LoadConfig(*ymlFile)
@@ -50,5 +51,23 @@ func main() {
 			// fmt.Println("Device:", res.DeviceAddress)
 			fmt.Printf("%+v\n", res.Sensor)
 		}
+	} else if *writeOut {
+		pickerWrError := picker.Create()
+		defer picker.Destroy()
+		if pickerWrError != nil {
+			log.Fatalf("error: %v", pickerError)
+		}
+		writeError := picker.WriteOutput("servo", 0, 126)
+		if writeError != nil {
+			log.Fatalf("error: %v", writeError)
+		}
+
+		// var a byte
+		// for a = 0; a <= 125; a += 5 {
+		// 	writeError := picker.WriteOutput("servo", 0, a)
+		// 	if writeError != nil {
+		// 		log.Fatalf("error: %v", writeError)
+		// 	}
+		// }
 	}
 }
