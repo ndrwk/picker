@@ -132,7 +132,9 @@ func Destroy() error {
 
 func Run(valChan chan Message) {
 	for _, s := range config.Device.Sensors {
-		tasks = append(tasks, Task{Ticker: time.NewTicker(time.Second * time.Duration(s.Period)), Sensor: s})
+		if s.Period != 0 {
+			tasks = append(tasks, Task{Ticker: time.NewTicker(time.Second * time.Duration(s.Period)), Sensor: s})
+		}
 	}
 	for _, t := range tasks {
 		go doTask(t, valChan)
@@ -206,9 +208,9 @@ func updateSensor(sensorType string) error {
 	return err
 }
 
-func WriteOutput(outputType string, index byte, value byte) error {
+func WriteOutput(sensorType string, index byte, value byte) error {
 	var err error
-	switch outputType {
+	switch sensorType {
 	case "servo":
 		err = device.writeServo(index, value)
 	}

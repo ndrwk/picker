@@ -22,7 +22,6 @@ type DeviceConfig struct {
 	DTRReset bool
 	Log      string
 	Sensors  []SensorConfig
-	Outputs  []SensorConfig
 }
 
 type Env struct {
@@ -78,10 +77,6 @@ func (dc DeviceConfig) makeHeader() (string, error) {
 			}
 			res += strPins[:len(strPins)-1]
 			res += "};\n"
-		}
-	}
-	for _, v := range dc.Outputs {
-		switch v.Type {
 		case "servo":
 			if v.Pins == nil {
 				return "", errors.New("Servo config error: Servo - empty Pins")

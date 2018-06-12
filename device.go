@@ -9,10 +9,12 @@ import (
 	"time"
 )
 
+type valueSet map[string]interface{}
+
 type Sensor struct {
 	Name    string
 	Address []byte
-	Values  map[string]float32
+	Values  valueSet
 }
 
 type sensors []Sensor
@@ -125,9 +127,8 @@ func (d *Device) updateDS1820Sensors() error {
 		tempBits := binary.LittleEndian.Uint32(msg[i*12+2 : i*12+6])
 		temperature := math.Float32frombits(tempBits)
 		sernum := msg[i*12+6 : i*12+14]
-		values := make(map[string]float32)
-		values["temperature"] = temperature
-		isExist := updateIfExist(sernum, values, "ds18b20")
+		values := valueSet{"temperature": temperature}
+		isExist := d.updateIfExist(sernum, values, "ds18b20")
 		if !isExist {
 			newSensor := Sensor{Values: values, Address: sernum, Name: "ds18b20"}
 			d.sensors = append(d.sensors, newSensor)
@@ -136,8 +137,8 @@ func (d *Device) updateDS1820Sensors() error {
 	return nil
 }
 
-func updateIfExist(sernum []byte, values map[string]float32, name string) bool {
-	for _, sensor := range device.sensors {
+func (d *Device) updateIfExist(sernum []byte, values valueSet, name string) bool {
+	for _, sensor := range d.sensors {
 		if reflect.DeepEqual(sensor.Address, sernum) && sensor.Name == name {
 			for k := range values {
 				sensor.Values[k] = values[k]
@@ -165,10 +166,8 @@ func (d *Device) updateDHT22() error {
 	temperature := math.Float32frombits(tempBits)
 	var sernum Buf
 	sernum = append(sernum, msg[9])
-	values := make(map[string]float32)
-	values["temperature"] = temperature
-	values["humidity"] = humidity
-	isExist := updateIfExist(sernum, values, "dht22")
+	values := valueSet{"temperature": temperature, "humidity": humidity}
+	isExist := d.updateIfExist(sernum, values, "dht22")
 	if !isExist {
 		newSensor := Sensor{Values: values, Address: sernum, Name: "dht22"}
 		d.sensors = append(d.sensors, newSensor)
@@ -192,10 +191,8 @@ func (d *Device) updateBMP085Sensors() error {
 	temperature := math.Float32frombits(tempBits)
 	var sernum Buf
 	sernum = append(sernum, msg[9])
-	values := make(map[string]float32)
-	values["pressure"] = float32(pressure)
-	values["temperature"] = temperature
-	isExist := updateIfExist(sernum, values, "bmp085")
+	values := valueSet{"pressure": pressure, "temperature": temperature}
+	isExist := d.updateIfExist(sernum, values, "bmp085")
 	if !isExist {
 		newSensor := Sensor{Values: values, Address: sernum, Name: "bmp085"}
 		d.sensors = append(d.sensors, newSensor)
@@ -218,9 +215,8 @@ func (d *Device) updateAnalogInputs() error {
 	for i := 0; i < number; i++ {
 		analogValue := binary.LittleEndian.Uint16(msg[i*3+3 : i*3+5])
 		sernum := msg[i*3+2 : i*3+3]
-		values := make(map[string]float32)
-		values["analog"] = float32(analogValue)
-		isExist := updateIfExist(sernum, values, "analog")
+		values := valueSet{"value": analogValue}
+		isExist := d.updateIfExist(sernum, values, "analog")
 		if !isExist {
 			newSensor := Sensor{Values: values, Address: sernum, Name: "analog"}
 			d.sensors = append(d.sensors, newSensor)
@@ -241,6 +237,13 @@ func (d *Device) writeServo(index byte, value byte) error {
 		return commError
 	}
 	if msg[0] == d.address && msg[1] == 0 {
+		values := valueSet{"angle": value}
+		sernum := []byte{index}
+		isExist := d.updateIfExist(sernum, values, "servo")
+		if !isExist {
+			newSensor := Sensor{Values: values, Address: sernum, Name: "servo"}
+			d.sensors = append(d.sensors, newSensor)
+		}
 		return nil
 	} else {
 		return errors.New("Servo error")
