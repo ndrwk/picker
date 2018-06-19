@@ -1,11 +1,12 @@
 ---
 device:
+  ip: 0.0.0.0:8080
   address: 0
   port: /dev/ttyUSB0
   baud: 115200
   timeout: 10000
   dtrreset: true
-  log: #log.txt #off
+  log: #picker.log #off
   sensors:
     - type: ds18b20
       pins:

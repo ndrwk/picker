@@ -122,6 +122,7 @@ func Create() error {
 	if pingError != nil {
 		return pingError
 	}
+	go runWSServer(config.Device.Ip, logger)
 	return nil
 }
 

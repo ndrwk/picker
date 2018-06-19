@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 
 	"github.com/ndrwk/picker"
@@ -37,6 +36,8 @@ func main() {
 			log.Fatalf("error: %v", pickerError)
 		}
 
+		// go picker.RunServer()
+
 		values := make(chan picker.Message, 1)
 		picker.Run(values)
 		//picker.RunAll(values, 5)
@@ -49,7 +50,7 @@ func main() {
 			}
 			// fmt.Println(res.TimeStamp.String())
 			// fmt.Println("Device:", res.DeviceAddress)
-			fmt.Printf("%+v\n", res.Sensor)
+			// fmt.Printf("%+v\n", res.Sensor)
 		}
 	} else if *writeOut {
 		pickerWrError := picker.Create()

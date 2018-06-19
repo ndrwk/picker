@@ -15,6 +15,7 @@ type SensorConfig struct {
 }
 
 type DeviceConfig struct {
+	Ip       string
 	Address  byte
 	Port     string
 	Baud     int
